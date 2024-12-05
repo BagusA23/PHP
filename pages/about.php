@@ -85,7 +85,7 @@ require "../includes/navbar.php";?>
             <h2 class="section-title">Tim Kami</h2>
             <div class="team-grid">
                 <div class="team-card">
-                    <img src="../assets/img/pp1.jpg" alt="Direktur" class="team-img">
+                    <img src="../assets/img/foto1.jpg" alt="Direktur" class="team-img">
                     <div class="team-info">
                         <h3 class="team-name">Bagus Ardiansyah</h3>
                         <p class="team-position">Direktur</p>
@@ -97,9 +97,9 @@ require "../includes/navbar.php";?>
                     </div>
                 </div>
                 <div class="team-card">
-                    <img src="../assets/img/pp1.jpg" alt="Direktur" class="team-img">
+                    <img src="../assets/img/foto2.jpg" alt="Direktur" class="team-img">
                     <div class="team-info">
-                        <h3 class="team-name">Bagus Ardiansyah</h3>
+                        <h3 class="team-name">Fina Septia Anggraeni</h3>
                         <p class="team-position">Direktur</p>
                         <div class="team-social">
                             <a href="#"><i class="fab fa-linkedin"></i></a>
@@ -109,9 +109,9 @@ require "../includes/navbar.php";?>
                     </div>
                 </div>
                 <div class="team-card">
-                    <img src="../assets/img/pp1.jpg" alt="Manajer Operasional" class="team-img">
+                    <img src="../assets/img/foto3.jpg" height="500px" alt="Manajer Operasional" class="team-img">
                     <div class="team-info">
-                        <h3 class="team-name">Bagus Ardiansyah</h3>
+                        <h3 class="team-name">Raka Valeriane</h3>
                         <p class="team-position">Manajer Operasional</p>
                         <div class="team-social">
                             <a href="#"><i class="fab fa-linkedin"></i></a>
@@ -121,9 +121,9 @@ require "../includes/navbar.php";?>
                     </div>
                 </div>
                 <div class="team-card">
-                    <img src="../assets/img/pp1.jpg" alt="Koordinator Edukasi" class="team-img">
+                    <img src="../assets/img/foto4.jpg" alt="Koordinator Edukasi" class="team-img">
                     <div class="team-info">
-                        <h3 class="team-name">Bagus Ardiansyah</h3>
+                        <h3 class="team-name">Muhammad Azramadhana</h3>
                         <p class="team-position">Koordinator Edukasi</p>
                         <div class="team-social">
                             <a href="#"><i class="fab fa-linkedin"></i></a>

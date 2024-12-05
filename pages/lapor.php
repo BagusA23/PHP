@@ -1,9 +1,80 @@
 <?php
 require_once "../functions/functions.php";
 
-if(isset($_GET['kirim'])){
 
+if(isset($_POST['kirim'])){
+    // Tangkap data dari form
+    $lokasi = isset($_POST['lokasi']) ? $_POST['lokasi'] : '';
+    $jenis = isset($_POST['jenis']) ? $_POST['jenis'] : '';
+    $deskripsi = isset($_POST['deskripsi']) ? $_POST['deskripsi'] : '';
+    
+    // Proses upload foto
+    $foto = ''; // Variabel untuk menyimpan nama file foto
+    if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+
+        // Cek tipe file
+        if(!in_array($_FILES['foto']['type'], $allowed_types)) {
+            $error = "Tipe file tidak diizinkan. Hanya JPEG, PNG, dan GIF yang diperbolehkan.";
+        }
+        // Cek ukuran file
+        elseif($_FILES['foto']['size'] > $max_file_size) {
+            $error = "Ukuran file terlalu besar. Maksimal 5MB.";
+        }
+        else {
+            // Generate nama file unik
+            $file_extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $foto = uniqid() . '.' . $file_extension;
+            $upload_path = 'uploads/' . $foto;
+
+            // Pastikan direktori uploads tersedia
+            if(!is_dir('uploads')) {
+                mkdir('uploads', 0777, true);
+            }
+
+            // Pindahkan file yang diupload
+            if(!move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+                $error = "Gagal mengupload foto.";
+            }
+        }
+    }
+
+    // Validasi input
+    if(empty($lokasi) || empty($jenis) || empty($deskripsi)) {
+        $error = "Semua field harus diisi!";
+    }
+
+    // Jika tidak ada error, proses insert
+    if(!isset($error)) {
+        // Gunakan prepared statement
+        $stmt = $conn->prepare("INSERT INTO laporan (lokasi, deskripsi, status, tanggal_laporan, jenis, gambar) VALUES (?, ?, 'pending', NOW(), ?, ?)");
+        $stmt->bind_param("ssss", $lokasi, $deskripsi, $jenis, $foto);
+
+        // Eksekusi query
+        if($stmt->execute()) {
+            $success = "Laporan berhasil disimpan!";
+        } else {
+            $error = "Gagal menyimpan laporan: " . $stmt->error;
+        }
+
+        // Tutup statement
+        $stmt->close();
+    }
 }
+
+$query_cek_lapor = "SELECT * FROM laporan WHERE status != 'resolved'";
+$stmt = $conn->prepare($query_cek_lapor);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$query_cek_lapor2 = "SELECT * FROM laporan WHERE status != 'pending' AND status != 'in progress'";
+$stmt2 = $conn->prepare($query_cek_lapor2);
+$stmt2->execute();
+$result2 = $stmt2->get_result();
+
+$i = 1;
+$a = 1;
 
 ?>
 <!DOCTYPE html>
@@ -17,40 +88,46 @@ if(isset($_GET['kirim'])){
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<?php
-require "../includes/navbar.php";
-requireLogin();
-?>
-    <!-- Main Content -->
+<?php require "../includes/navbar.php"; requireLogin(); ?>
     <div class="container my-4">
+        <?php 
+        // Tampilkan pesan error atau success
+        if(isset($error)) {
+            echo "<div class='alert alert-danger'>$error</div>";
+        }
+        if(isset($success)) {
+            echo "<div class='alert alert-success'>$success</div>";
+        }
+        ?>
+        
         <!-- Form Pelaporan -->
         <section class="mb-5">
             <h2 class="mb-4">Form Pelaporan Sampah</h2>
             <div class="card">
                 <div class="card-body">
-                    <form action="" method="get" >
-                        <div class="mb-3" name="lokasi" >
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
                             <label class="form-label">Lokasi</label>
-                            <input type="text" class="form-control" placeholder="Masukkan lokasi sampah">
+                            <input type="text" name="lokasi" class="form-control" placeholder="Masukkan lokasi sampah" required>
                         </div>
-                        <div class="mb-3"name="jenis" >
+                        <div class="mb-3">
                             <label class="form-label">Jenis Sampah</label>
-                            <select class="form-select">
-                                <option>Pilih jenis sampah</option>
+                            <select name="jenis" class="form-select" required>
+                                <option value="">Pilih jenis sampah</option>
                                 <option>Sampah Rumah Tangga</option>
                                 <option>Sampah Industri</option>
                                 <option>Sampah B3</option>
                             </select>
                         </div>
-                        <div class="mb-3" name="deskripsi" >
+                        <div class="mb-3">
                             <label class="form-label">Deskripsi</label>
-                            <textarea class="form-control" rows="3" placeholder="Jelaskan detail permasalahan sampah"></textarea>
+                            <textarea name="deskripsi" class="form-control" rows="3" placeholder="Jelaskan detail permasalahan sampah" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" name="foto" >Upload Foto</label>
-                            <input type="file" class="form-control" accept="image/*">
+                            <label class="form-label">Upload Foto</label>
+                            <input type="file" name="foto" class="form-control" accept="image/*">
                         </div>
-                        <button type="submit" name="kirim" class="btn btn-success">Kirim Laporan</button>
+                        <button type="submit" name="kirim" value="submit" class="btn btn-success">Kirim Laporan</button>
                     </form>
                 </div>
             </div>
@@ -67,17 +144,27 @@ requireLogin();
                             <th>Tanggal</th>
                             <th>Lokasi</th>
                             <th>Status</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
+                    <?php if ($result->num_rows > 0): ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td>#12345</td>
-                            <td>2024-03-20</td>
-                            <td>Jl. Contoh No. 123</td>
-                            <td><span class="badge bg-warning">Dalam Proses</span></td>
-                            <td><button class="btn btn-sm btn-info">Detail</button></td>
+                            <td><?= $i++; ?></td>
+                            <td><?= $row["tanggal_laporan"]; ?></td>
+                            <td><?= $row['lokasi']; ?></td>
+                            <?php if($row['status']=='pending'):?>
+                            <td>
+                            <span class="badge bg-danger"><?= $row['status']; ?></span>
+                            </td>
+                            <?php elseif($row['status']=='in progress'): ?>
+                            <td>
+                            <span class="badge bg-warning"><?= $row['status']; ?></span>
+                            </td>
+                            <?php endif; ?> 
                         </tr>
+                        <?php endwhile; ?>
+                    <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -94,17 +181,27 @@ requireLogin();
                             <th>Tanggal</th>
                             <th>Lokasi</th>
                             <th>Status</th>
-                            <th>Tanggal Selesai</th>
                         </tr>
                     </thead>
                     <tbody>
+                       <?php if ($result2->num_rows > 0): ?>
+                        <?php while ($row = $result2->fetch_assoc()): ?>
                         <tr>
-                            <td>#12344</td>
-                            <td>2024-03-15</td>
-                            <td>Jl. Sample No. 456</td>
-                            <td><span class="badge bg-success">Selesai</span></td>
-                            <td>2024-03-18</td>
+                            <td><?= $a++; ?></td>
+                            <td><?= $row["tanggal_laporan"]; ?></td>
+                            <td><?= $row['lokasi']; ?></td>
+                            <?php if($row['status']=='pending' or $row['status']=='in progress'): ?>
+                            <td>
+                            <span class="badge bg-warning"><?= $row['status']; ?></span>
+                            </td>
+                            <?php elseif($row['status'] == 'resolved'): ?>
+                            <td>
+                            <span class="badge bg-success"><?= $row['status']; ?></span>
+                            </td>
+                            <?php endif; ?> 
                         </tr>
+                        <?php endwhile; ?>
+                    <?php endif; ?>
                     </tbody>
                 </table>
             </div>

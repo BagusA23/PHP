@@ -38,6 +38,7 @@ require_once "../functions/functions.php";
                         </div>
 
                         <div class="map-placeholder bg-light p-4 rounded text-center">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127504.42584789766!2d104.680391406905!3d-2.9549654867335358!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e3b75e8fc27a3e3%3A0x3039d80b220d0c0!2sPalembang%2C%20Kota%20Palembang%2C%20Sumatera%20Selatan!5e0!3m2!1sid!2sid!4v1733367387134!5m2!1sid!2sid" width="550" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                             Lokasi Peta
                         </div>
                     </div>

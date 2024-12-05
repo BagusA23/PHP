@@ -44,6 +44,20 @@ function totalsampah(){
         echo "No data found.";
     }
 }
+
+function totallapor(){
+    global $conn;
+    $sql = "SELECT SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) AS total_lapor FROM laporan";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $total_sampah = $row["total_lapor"];
+        echo  $total_sampah;
+    }else {
+        echo "No data found.";
+    }
+}
 function register($data) {
     global $conn;
     
@@ -109,7 +123,7 @@ function login($data){
         if (password_verify($password, $user["password"])) {
             // Set session
             $_SESSION['sign'] = true;
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['id_user'];
             $_SESSION['role'] = $user['role'];
 
             if (isset($cook) && $cook === 'on') {
@@ -241,13 +255,19 @@ function updpassword($data){
     return $affected_rows;
 }
 
-function laporsampah($data){
+function Lapor($data){
     global $conn;
-    $lokasi = filter_var(strtolower(trim($data['lokasi'])),FILTER_FLAG_EMPTY_STRING_NULL);
-    $jenis = $data['jenis'];
-    $deskripsi = $data['deskripsi'];
-    $foto = $data['foto'];
-
-
+    $lokasi = $data["lokasi"];
+    $jenis = $data["jenis"];
+    $deskripsi = $data["deskripsi"];
+    $gambar = $data["gambar"];
     
+    $stmt = $conn->prepare("INSERT INTO laporan (lokasi, deskripsi, status, tanggal_laporan, jenis, gambar) VALUES (?, ?, '', NOW(), ?, ?)");
+    $stmt->bind_param("ssss", $lokasi, $deskripsi, $jenis, $gambar);
+
+    if($stmt->execute()){
+        return true;
+    } else {
+        return false;
+    }
 }

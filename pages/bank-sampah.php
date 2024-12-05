@@ -12,7 +12,6 @@ if(isset($_POST['submit'])){
     $jenis = $_POST['jenis'];
     $berat = $_POST['berat'];
 
-
     // $query_cek_user = "SELECT * FROM users";
     // $result = $conn->query($query_cek_user);
     // while ($row = $result->fetch_assoc()) {
@@ -80,7 +79,7 @@ if(isset($_POST['submit'])){
     // Eksekusi query
     if ($stmt_insert->execute()) {
         echo "Berhasil input setoran";
-        echo "Total Harga: Rp " . number_format($total_harga, 0, ',', '.');
+        echo " Total Harga: Rp " . number_format($total_harga, 0, ',', '.');
     } else {
         echo "Gagal input: " . $stmt_insert->error;
     }
@@ -91,9 +90,13 @@ if(isset($_POST['submit'])){
 }
 }
 $query_cek_kategori = "SELECT * FROM setor_sampah 
-                        JOIN kategori_sampah ON kategori_sampah.jenis = setor_sampah.id_kategori 
-                        JOIN users ON users.id_user = setor_Sampah.id_user";
-$result = $conn->query($query_cek_kategori);
+                       JOIN kategori_sampah ON kategori_sampah.jenis = setor_sampah.id_kategori 
+                       JOIN users ON users.id_user = setor_Sampah.id_user
+                       WHERE setor_sampah.id_user = ?";
+$stmt = $conn->prepare($query_cek_kategori);
+$stmt->bind_param("i", $_SESSION['user_id']); // Pastikan Anda sudah memiliki session user_id
+$stmt->execute();
+$result = $stmt->get_result();
 
 ?>
 <!DOCTYPE html>
@@ -220,7 +223,7 @@ $result = $conn->query($query_cek_kategori);
 
         <!-- Riwayat Setoran (Visible only when logged in) -->
         <section class="mb-5">
-            <h2 class="mb-4">Riwayat Setoran</h2>
+            <h2 class="mb-4">Riwayat Setoran Anda</h2>
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>

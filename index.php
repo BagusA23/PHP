@@ -83,7 +83,7 @@ require_once __DIR__ . '/includes/navbar.php';
             <div class="col-md-3 col-6 mb-4">
                 <div class="stat-box">
                     <i class="fas fa-check-circle mb-3 text-success" style="font-size: 2rem;"></i>
-                    <h3>234</h3>
+                    <h3><?= totallapor(); ?></h3>
                     <p>Laporan Selesai</p>
                 </div>
             </div>

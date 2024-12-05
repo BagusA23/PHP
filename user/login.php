@@ -2,11 +2,49 @@
 session_start();
 require "../functions/functions.php";
 
+if(isset($_COOKIE['PPHSDW']) && isset($_COOKIE['PPHSDE'])){
+    $PPHSDW = $_COOKIE['PPHSDW'];
+    $PPHSDE = $_COOKIE['PPHSDE'];
+
+    // Prepare statement
+    $stmt = mysqli_prepare($conn, "SELECT email FROM users WHERE id_user = ?");
+    
+    if (!$stmt) {
+        // Handle preparation error
+        die("Prepare failed: " . mysqli_error($conn));
+    }
+
+    mysqli_stmt_bind_param($stmt, "s", $PPHSDW);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+        
+        if ($row) {
+            // Check cookie and username
+            if($PPHSDE === hash('sha256', $row['email'])){
+                $_SESSION['sign'] = true;
+            }
+        } else {
+            // No user found
+            error_log("No user found with ID: " . $PPHSDW);
+        }
+    } else {
+        // Query failed
+        error_log("Query failed: " . mysqli_error($conn));
+    }
+}
+
+if(isset($_SESSION['sign']) && $_SESSION['sign'] === true){
+    header("Location: ../index.php");
+    exit;
+}
+
 if (isset($_POST['sign'])) {
     global $conn;
     $email = filter_var(strtolower(trim($_POST['email'])), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'];
-    $cook = $_POST['remember'];
 
     $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
@@ -20,12 +58,15 @@ if (isset($_POST['sign'])) {
         if (password_verify($password, $user["password"])) {
             // Set session
             $_SESSION['sign'] = true;
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id'] = $user['id_user'];
+            $_SESSION['email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
 
-            if (isset($cook) && $cook === 'on') {
+            if (isset($_POST['remember'])) {
                 // Simpan informasi lebih detail
-                setcookie('sign', $user['id'], time() + 60 * 60 * 24 * 30, '/');
+                setcookie('PPHSDW', hash('sha256',$user['id_user']), time() + 60 * 60 * 24 * 30, '/');
+                setcookie('PPHSDE', hash('sha256',$user['email']), time() + 60 * 60 * 24 * 30, '/');
+
             }
             // Redirect berdasarkan role
             switch ($user['role']) {
