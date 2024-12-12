@@ -2,8 +2,8 @@
 require_once "../functions/functions.php";
 require_once "../includes/navbar.php";
 // Cek status login untuk menentukan konten yang ditampilkan
-requireLogin();
-checkLogin();
+// requireLogin();
+// checkLogin();
 if(isset($_POST['submit'])){
 
     if(isset($_SESSION['sign'])){
@@ -87,6 +87,7 @@ if(isset($_POST['submit'])){
     // Tutup statement dan conn
     $stmt_kategori->close();
     $stmt_insert->close();
+    
 }
 }
 $query_cek_kategori = "SELECT * FROM setor_sampah 
@@ -163,6 +164,7 @@ $result = $stmt->get_result();
         </div>
     </div>
 </section>
+<?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
         <!-- Form Setor Sampah (Visible only when logged in) -->
         <section class="mb-5">
             <h2 class="mb-4">Setor Sampah</h2>
@@ -188,6 +190,7 @@ $result = $stmt->get_result();
                 </div>
             </div>
         </section>
+<?php endif; ?>
         <!-- Daftar Harga Sampah -->
         <section class="mb-5">
             <h2 class="mb-4">Daftar Harga Sampah</h2>
@@ -220,7 +223,7 @@ $result = $stmt->get_result();
                 </table>
             </div>
         </section>
-
+        <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
         <!-- Riwayat Setoran (Visible only when logged in) -->
         <section class="mb-5">
             <h2 class="mb-4">Riwayat Setoran Anda</h2>
@@ -247,6 +250,7 @@ $result = $stmt->get_result();
                 </table>
             </div>
         </section>
+        <?php endif; ?>
     </div>
 <?php require_once "../includes/footer.php";?>
 <script src="https://kit.fontawesome.com/YOUR-KIT-ID.js" crossorigin="anonymous"></script>

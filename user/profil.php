@@ -1,3 +1,21 @@
+<?php
+session_start();
+require_once "../functions/functions.php";
+// Proses upload foto jika form disubmit
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['foto'])) {
+    // Pastikan user sudah login
+    if (!isset($_SESSION['user_id'])) {
+        echo "<script>alert('Silakan login terlebih dahulu.');</script>";
+        exit();
+    }
+
+    // Panggil fungsi upload
+    $user_id = $_SESSION['user_id'];
+    uploadFotoProfil($user_id, $_FILES['foto']);
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -30,6 +48,7 @@
                 <div class="card shadow-sm">
                     <!-- Profil Header -->
                     <div class="card-header bg-success text-white py-4">
+                        <form action="" method="post">
                         <div class="d-flex align-items-center">
                             <div class="position-relative me-4">
                                 <img 
@@ -37,24 +56,21 @@
                                     alt="Foto Profil" 
                                     class="rounded-circle profile-img"
                                 >
-                                <label 
-                                    for="foto-profil" 
-                                    class="btn btn-primary btn-sm rounded-circle upload-btn"
-                                >
+                                <label name="foto" for="foto-profil" class="btn btn-primary btn-sm rounded-circle upload-btn">
                                     <i class="bi bi-camera"></i>
                                     <input 
                                         type="file" 
-                                        id="foto-profil" 
+                                        id="foto-profil"
                                         class="d-none" 
                                         accept="image/*"
-                                    >
+                                        onchange="this.form.submit()">
                                 </label>
                             </div>
                             <div>
-                                <h2 class="card-title mb-1">Ahmad Sudirman</h2>
-                                <p class="card-text">ahmad.sudirman@example.com</p>
+                                <h2 class="card-title mb-1"><?= $_SESSION['email']; ?></h2>
                             </div>
                         </div>
+                        </form>
                     </div>
 
                     <!-- Statistik -->
@@ -64,7 +80,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h6 class="card-subtitle mb-2 text-muted">Saldo</h6>
-                                        <p class="card-text h5 text-success">Rp 250.000</p>
+                                        <p class="card-text h5 text-success"><?= totalsaldo(); ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +88,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h6 class="card-subtitle mb-2 text-muted">Total Setor</h6>
-                                        <p class="card-text h5 text-primary">45.5 kg</p>
+                                        <p class="card-text h5 text-primary"><?= totalsampahuser(); ?></p>
                                     </div>
                                 </div>
                             </div>

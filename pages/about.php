@@ -85,7 +85,7 @@ require "../includes/navbar.php";?>
             <h2 class="section-title">Tim Kami</h2>
             <div class="team-grid">
                 <div class="team-card">
-                    <img src="../assets/img/foto1.jpg" alt="Direktur" class="team-img">
+                    <img src="../assets/img/fo.jpg" height="500px" alt="Direktur" class="team-img">
                     <div class="team-info">
                         <h3 class="team-name">Bagus Ardiansyah</h3>
                         <p class="team-position">Direktur</p>
@@ -100,7 +100,7 @@ require "../includes/navbar.php";?>
                     <img src="../assets/img/foto2.jpg" alt="Direktur" class="team-img">
                     <div class="team-info">
                         <h3 class="team-name">Fina Septia Anggraeni</h3>
-                        <p class="team-position">Direktur</p>
+                        <p class="team-position">Koordinator Bank-sampah</p>
                         <div class="team-social">
                             <a href="#"><i class="fab fa-linkedin"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -108,8 +108,8 @@ require "../includes/navbar.php";?>
                         </div>
                     </div>
                 </div>
-                <div class="team-card">
-                    <img src="../assets/img/foto3.jpg" height="500px" alt="Manajer Operasional" class="team-img">
+                <div class="team-card" height="300px" >
+                    <img src="../assets/img/foto3.jpg" alt="Manajer Operasional" class="team-img">
                     <div class="team-info">
                         <h3 class="team-name">Raka Valeriane</h3>
                         <p class="team-position">Manajer Operasional</p>
@@ -121,7 +121,7 @@ require "../includes/navbar.php";?>
                     </div>
                 </div>
                 <div class="team-card">
-                    <img src="../assets/img/foto4.jpg" alt="Koordinator Edukasi" class="team-img">
+                    <img src="../assets/img/foto4.jpg" height="100px" alt="Koordinator Edukasi" class="team-img">
                     <div class="team-info">
                         <h3 class="team-name">Muhammad Azramadhana</h3>
                         <p class="team-position">Koordinator Edukasi</p>
@@ -161,7 +161,7 @@ require "../includes/navbar.php";?>
         </div>
     </section>
 
-<?php require "../includes/footer.php"; ?>
+<?php require "../includes/footer.php"; ?>  
 <script src="https://kit.fontawesome.com/YOUR-KIT-ID.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

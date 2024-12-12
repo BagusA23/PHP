@@ -224,7 +224,8 @@ require "../includes/navbar.php";?>
         </div>
     </div>
     </section>
-    <section>
+
+    <section id="daur-ulang">
            <!-- Header -->
     <div class="bg-success text-white py-5">
         <div class="container">
@@ -240,13 +241,11 @@ require "../includes/navbar.php";?>
     <div class="row g-4 mb-5">
         <div class="col-md-6 col-lg-3">
             <div class="card h-100 shadow">
-                <img src="/api/placeholder/800/400" class="card-img-top" alt="Ecobrick">
+                <img src="../assets/img/ecobricks.jpeg" height="200px" class="card-img-top" alt="Ecobrick">
                 <div class="card-body">
                     <h5 class="card-title text-success">Ecobrick</h5>
                     <p class="card-text">Membuat bata ramah lingkungan dari botol plastik bekas.</p>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#ecobrickModal">
-                        Lihat Tutorial
-                    </button>
+                    <a href="https://youtu.be/2zmdkPervGw?si=Yb7xhxMlwL9SGRhb" class="btn btn-success">Lihat Tutorial</a>
                 </div>
             </div>
         </div>
@@ -254,11 +253,9 @@ require "../includes/navbar.php";?>
             <div class="card h-100 shadow">
                 <img src="../assets/img/compos.jpg" class="card-img-top" alt="Kompos">
                 <div class="card-body">
-                    <h5 class="card-title text-success">Kompos</h5>
+                    <h5 class="card-title text-success ">Kompos</h5>
                     <p class="card-text">Mengolah sampah organik menjadi pupuk kompos.</p>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#komposModal">
-                        Lihat Tutorial
-                    </button>
+                    <a href="https://youtu.be/kwajGch9cKA?si=W6ZXBCz8VV6AbajP" class="btn btn-success">Lihat Tutorial</a>
                 </div>
             </div>
         </div>
@@ -268,9 +265,6 @@ require "../includes/navbar.php";?>
                 <div class="card-body">
                     <h5 class="card-title text-success">Kerajinan</h5>
                     <p class="card-text">Membuat kerajinan dari berbagai sampah anorganik.</p>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#kerajinanModal">
-                        Lihat Tutorial
-                    </button>
                 </div>
             </div>
         </div>

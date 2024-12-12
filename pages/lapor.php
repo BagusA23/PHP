@@ -1,9 +1,11 @@
 <?php
+require "../includes/navbar.php";
 require_once "../functions/functions.php";
 
 
 if(isset($_POST['kirim'])){
     // Tangkap data dari form
+    $user = isset($_POST['user_id']) ? $_POST['user_id'] : '';
     $lokasi = isset($_POST['lokasi']) ? $_POST['lokasi'] : '';
     $jenis = isset($_POST['jenis']) ? $_POST['jenis'] : '';
     $deskripsi = isset($_POST['deskripsi']) ? $_POST['deskripsi'] : '';
@@ -88,7 +90,7 @@ $a = 1;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<?php require "../includes/navbar.php"; requireLogin(); ?>
+<?php  requireLogin(); ?>
     <div class="container my-4">
         <?php 
         // Tampilkan pesan error atau success

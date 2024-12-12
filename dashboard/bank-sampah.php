@@ -12,6 +12,7 @@ if (!isset($_SESSION['sign'])) {
     exit;
 }
 
+requireAdmin();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -35,7 +36,7 @@ if (!isset($_SESSION['sign'])) {
                     </div>
                     <ul class="nav flex-column py-3">
                         <li class="nav-item">
-                            <a class="nav-link active" href="admin.php">
+                            <a class="nav-link" href="admin.php">
                                 <i class="bi bi-grid-fill me-2"></i>
                                 Dashboard
                             </a>
@@ -47,7 +48,7 @@ if (!isset($_SESSION['sign'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="bank-sampah.php">
+                            <a class="nav-link active" href="Bank-sampah.php">
                                 <i class="bi bi-recycle me-2"></i>
                                 Bank Sampah
                             </a>
@@ -59,13 +60,13 @@ if (!isset($_SESSION['sign'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="Harga.php">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Harga Sampah
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="Transaksi.php">
                                 <i class="bi bi-file-text-fill me-2"></i>
                                 Laporan Transaksi
                             </a>
@@ -79,7 +80,6 @@ if (!isset($_SESSION['sign'])) {
                     </ul>
                 </div>
             </div>
-
             <!-- Main Content -->
             <div class="col-md-9 col-lg-10 ms-sm-auto px-4 py-3">
                 <!-- Header -->
@@ -164,123 +164,3 @@ if (!isset($_SESSION['sign'])) {
                         </div>
                     </div>
                 </div>
-
-                <!-- Recent Transactions -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Transaksi Terbaru</h5>
-                        <button class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Tanggal</th>
-                                        <th>Pengguna</th>
-                                        <th>Jenis Sampah</th>
-                                        <th>Berat</th>
-                                        <th>Total</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>#001</td>
-                                        <td>20/03/2024</td>
-                                        <td>John Doe</td>
-                                        <td>Plastik</td>
-                                        <td>5 kg</td>
-                                        <td>Rp 25.000</td>
-                                        <td><span class="badge bg-success">Selesai</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#002</td>
-                                        <td>20/03/2024</td>
-                                        <td>Jane Doe</td>
-                                        <td>Kertas</td>
-                                        <td>3 kg</td>
-                                        <td>Rp 15.000</td>
-                                        <td><span class="badge bg-warning">Proses</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Latest Reports -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Laporan Terbaru</h5>
-                        <button class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Tanggal</th>
-                                        <th>Pelapor</th>
-                                        <th>Lokasi</th>
-                                        <th>Jenis</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>#001</td>
-                                        <td>20/03/2024</td>
-                                        <td>John Doe</td>
-                                        <td>Jl. Contoh No. 123</td>
-                                        <td>Sampah Liar</td>
-                                        <td><span class="badge bg-danger">Pending</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#002</td>
-                                        <td>20/03/2024</td>
-                                        <td>Jane Doe</td>
-                                        <td>Jl. Sample No. 456</td>
-                                        <td>Sampah B3</td>
-                                        <td><span class="badge bg-success">Selesai</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

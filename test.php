@@ -137,59 +137,62 @@
             </div>
         </div>
     </div>
-    <!-- Status Laporan -->
-    <section class="mb-5">
-            <h2 class="mb-4">Status Reward</h2>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID Reward</th>
-                            <th>Tanggal</th>
-                            <th>Lokasi</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#12345</td>
-                            <td>2024-03-20</td>
-                            <td>Jl. Contoh No. 123</td>
-                            <td><span class="badge bg-warning">Dalam Proses</span></td>
-                            <td><button class="btn btn-sm btn-info">Detail</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
 
-        <!-- Riwayat Laporan -->
+    <div class="container">
+        <!-- Status Laporan -->
         <section class="mb-5">
-            <h2 class="mb-4">Riwayat Laporan</h2>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID Laporan</th>
-                            <th>Tanggal</th>
-                            <th>Lokasi</th>
-                            <th>Status</th>
-                            <th>Tanggal Selesai</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#12344</td>
-                            <td>2024-03-15</td>
-                            <td>Jl. Sample No. 456</td>
-                            <td><span class="badge bg-success">Selesai</span></td>
-                            <td>2024-03-18</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                <h2 class="mb-4">Status Reward</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID Reward</th>
+                                <th>Tanggal</th>
+                                <th>Lokasi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#12345</td>
+                                <td>2024-03-20</td>
+                                <td>Jl. Contoh No. 123</td>
+                                <td><span class="badge bg-warning">Dalam Proses</span></td>
+                                <td><button class="btn btn-sm btn-info">Detail</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Riwayat Laporan -->
+            <section class="mb-5">
+                <h2 class="mb-4">Riwayat Laporan</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID Laporan</th>
+                                <th>Tanggal</th>
+                                <th>Lokasi</th>
+                                <th>Status</th>
+                                <th>Tanggal Selesai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#12344</td>
+                                <td>2024-03-15</td>
+                                <td>Jl. Sample No. 456</td>
+                                <td><span class="badge bg-success">Selesai</span></td>
+                                <td>2024-03-18</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->

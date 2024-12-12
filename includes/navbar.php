@@ -1,12 +1,6 @@
 <?php 
 session_start();
-
 include "config.php"; 
-
-$isLoggedIn = isLoggedIn();
-$userRole = getUserRole();
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,12 +39,11 @@ $userRole = getUserRole();
                             Edukasi
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php?section=jenis">Jenis Sampah</a></li>
-                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php?section=pemilah">Cara Memilah</a></li>
-                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php">Daur Ulang</a></li>
+                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php#jenis">Jenis Sampah</a></li>
+                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php#pemilah">Cara Memilah</a></li>
+                            <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php#daur-ulang">Daur Ulang</a></li>
                         </ul>
                     </li>
-                    <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $GLOBALS['base_url']; ?>/pages/bank-sampah.php">Bank Sampah</a>
                     </li>
@@ -62,7 +55,6 @@ $userRole = getUserRole();
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $GLOBALS['base_url']; ?>/pages/kontak.php">Kontak</a>
                     </li>
-                    <?php endif; ?>
                 </ul>
     
                 <!-- Menu Login/Register -->

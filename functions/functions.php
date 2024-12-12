@@ -31,6 +31,21 @@ function totaluser(){
     }
 }
 
+// function user(){
+//     global $conn;
+//     $stmt = $conn->prepare("SELECT * FROM users");
+//     $stmt->execute();
+//     $result = $stmt->get_result();
+
+//     if($result->num_rows > 0){
+//         while($row = $result->fetch_assoc()){
+//             $row["id"]. " " .$row["name"]. " " .$row["email"]."".$row['role']."<br>";
+//         }
+//     } else {
+//         echo "No users found.";
+//     }
+// }
+
 function totalsampah(){
     global $conn;
     $sql = "SELECT SUM(berat) AS total_sampah FROM setor_sampah";
@@ -44,7 +59,63 @@ function totalsampah(){
         echo "No data found.";
     }
 }
+//menghtung total saldo berdasarkan login
+function totalsaldo(){
+    global $conn;
+    // Ambil ID user yang sedang login
+    $user_id = $_SESSION['user_id'];
 
+    // Query untuk menjumlahkan total harga hanya untuk user yang login
+    $sql = "SELECT SUM(total_harga) AS total_harga FROM setor_sampah WHERE id_user = ?";
+    
+    // Gunakan prepared statement untuk keamanan
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    
+    $result = $stmt->get_result();
+
+    
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        // Tambahkan pengecekan null dan konversi ke float
+        $total_sampah = $row["total_harga"] !== null ? floatval($row["total_harga"]) : 0;
+        
+        // Format rupiah
+        echo "Rp. " . number_format($total_sampah, 0, ',', '.');
+    } else {
+        echo "Rp. 0";
+    }
+    
+    $stmt->close();
+}
+
+//menghitung total sampah berdasrkan login
+function totalsampahuser(){
+    global $conn;
+    // Ambil ID user yang sedang login
+    $user_id = $_SESSION['user_id'];
+
+    // Query untuk menjumlahkan total harga hanya untuk user yang login
+    $sql = "SELECT SUM(berat) AS total_sampah FROM setor_sampah WHERE id_user = ?";
+    
+    // Gunakan prepared statement untuk keamanan
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $total_sampah = $row["total_sampah"] !== null ? floatval($row['total_sampah']) : 0 ;
+        echo  $total_sampah." Kg";
+    }else {
+        echo "No data found.";
+    }
+    
+    $stmt->close();
+}
 function totallapor(){
     global $conn;
     $sql = "SELECT SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) AS total_lapor FROM laporan";
@@ -58,6 +129,20 @@ function totallapor(){
         echo "No data found.";
     }
 }
+
+function totallapor2(){
+    global $conn;
+    $query = "SELECT SUM(CASE WHEN status = 'pending' or status = 'in progress' THEN 1 ELSE 0 END) AS total_lapor FROM laporan";
+    $result = $conn->query($query);
+
+    if($result->num_rows>0){
+        $row = $result->fetch_assoc();
+        $total_lapor = $row["total_lapor"];
+        echo $total_lapor;
+    }else{
+        echo "No data found.";
+    }
+}
 function register($data) {
     global $conn;
     
@@ -65,6 +150,37 @@ function register($data) {
     $email = filter_var(strtolower(trim($data['email'])), FILTER_SANITIZE_EMAIL);
     $password = $data['password'];
     $confirmpassword = $data['ConfirmPassword'];
+
+    $foto = ''; // Variabel untuk menyimpan nama file foto
+    if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+
+        // Cek tipe file
+        if(!in_array($_FILES['foto']['type'], $allowed_types)) {
+            $error = "Tipe file tidak diizinkan. Hanya JPEG, PNG, dan GIF yang diperbolehkan.";
+        }
+        // Cek ukuran file
+        elseif($_FILES['foto']['size'] > $max_file_size) {
+            $error = "Ukuran file terlalu besar. Maksimal 5MB.";
+        }
+        else {
+            // Generate nama file unik
+            $file_extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $foto = uniqid() . '.' . $file_extension;
+            $upload_path = 'uploads/' . $foto;
+
+            // Pastikan direktori uploads tersedia
+            if(!is_dir('uploads')) {
+                mkdir('uploads', 0777, true);
+            }
+
+            // Pindahkan file yang diupload
+            if(!move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+                $error = "Gagal mengupload foto.";
+            }
+        }
+    }
 
     // Validasi email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -89,13 +205,43 @@ function register($data) {
         echo "<script>alert('Password tidak sama');</script>";
         return false;
     }
+    $foto = '../assets/img/nophoto.png'; // Variabel untuk menyimpan nama file foto
+    if(isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        $max_file_size = 5 * 1024 * 1024; // 5MB
+
+        // Cek tipe file
+        if(!in_array($_FILES['foto']['type'], $allowed_types)) {
+            $error = "Tipe file tidak diizinkan. Hanya JPEG, PNG, dan GIF yang diperbolehkan.";
+        }
+        // Cek ukuran file
+        elseif($_FILES['foto']['size'] > $max_file_size) {
+            $error = "Ukuran file terlalu besar. Maksimal 5MB.";
+        }
+        else {
+            // Generate nama file unik
+            $file_extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+            $foto = uniqid() . '.' . $file_extension;
+            $upload_path = 'uploads/' . $foto;
+
+            // Pastikan direktori uploads tersedia
+            if(!is_dir('uploads')) {
+                mkdir('uploads', 0777, true);
+            }
+
+            // Pindahkan file yang diupload
+            if(!move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+                $error = "Gagal mengupload foto.";
+            }
+        }
+    }
 
     // Hash password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     // Insert data dengan prepared statement
-    $stmt = $conn->prepare("INSERT INTO users ( email, password) VALUES ( ?, ?)");
-    $stmt->bind_param("ss",  $email, $hashedPassword);
+    $stmt = $conn->prepare("INSERT INTO users (gambar, email, password) VALUES ( ?,?, ?)");
+    $stmt->bind_param("sss", $foto , $email, $hashedPassword);
     $stmt->execute();
     
     $affected_rows = $stmt->affected_rows;
@@ -271,3 +417,85 @@ function Lapor($data){
         return false;
     }
 }
+
+function user(){
+    global $conn;
+    $stmt = $conn->prepare("SELECT * FROM users");
+    $result = $stmt->get_result();
+    var_dump($result);
+
+}
+
+
+function uploadFotoProfil($user_id, $foto) {
+    // Direktori penyimpanan foto
+    $target_dir = "../user/upload/";
+    
+    // Pastikan direktori uploads ada
+    if (!is_dir($target_dir)) {
+        mkdir($target_dir, 0777, true);
+    }
+
+    // Cek apakah file adalah gambar
+    $check = getimagesize($foto["tmp_name"]);
+    if($check === false) {
+        echo "<script>alert('File yang dipilih bukan gambar.');</script>";
+        return false;
+    }
+
+    // Validasi ukuran file (misalnya maks 5MB)
+    if ($foto["size"] > 5000000) {
+        echo "<script>alert('Ukuran file terlalu besar. Maks 5MB.');</script>";
+        return false;
+    }
+
+    // Generate nama file unik
+    $nama_file_asli = basename($foto["foto"]);
+    $ekstensi = strtolower(pathinfo($nama_file_asli, PATHINFO_EXTENSION));
+    $nama_file_baru = $user_id . "_profile_" . uniqid() . "." . $ekstensi;
+    $target_path = $target_dir . $nama_file_baru;
+
+    // Validasi tipe file
+    $tipe_file_valid = ["jpg", "jpeg", "png", "gif"];
+    if (!in_array($ekstensi, $tipe_file_valid)) {
+        echo "<script>alert('Tipe file tidak diizinkan. Gunakan JPG, JPEG, PNG, atau GIF.');</script>";
+        return false;
+    }
+
+    // Upload file
+    if (move_uploaded_file($foto["tmp_name"], $target_path)) {
+        global $conn; // Gunakan koneksi global
+        
+        // Hapus foto lama jika ada
+        $query_cek_foto_lama = "SELECT gambar FROM users WHERE id = ?";
+        $stmt_cek = $conn->prepare($query_cek_foto_lama);
+        $stmt_cek->bind_param("i", $user_id);
+        $stmt_cek->execute();
+        $result = $stmt_cek->get_result();
+        $row = $result->fetch_assoc();
+        
+        // Hapus file foto lama jika bukan default
+        if ($row['gambar'] && $row['gambar'] != 'uploads/default_avatar.png') {
+            if (file_exists($row['gambar'])) {
+                unlink($row['gambar']);
+            }
+        }
+
+        // Update path foto di database
+        $query = "UPDATE users SET gambar = ? WHERE id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("si", $target_path, $user_id);
+        
+        if ($stmt->execute()) {
+            echo "<script>alert('Upload foto berhasil!');</script>";
+            return true;
+        } else {
+            echo "<script>alert('Gagal menyimpan foto ke database.');</script>";
+            return false;
+        }
+    } else {
+        echo "<script>alert('Gagal upload foto.');</script>";
+        return false;
+    }
+}
+
