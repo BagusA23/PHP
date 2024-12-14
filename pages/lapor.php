@@ -5,7 +5,8 @@ require_once "../functions/functions.php";
 
 if(isset($_POST['kirim'])){
     // Tangkap data dari form
-    $user = isset($_POST['user_id']) ? $_POST['user_id'] : '';
+
+    $user = $_SESSION['user_id'];
     $lokasi = isset($_POST['lokasi']) ? $_POST['lokasi'] : '';
     $jenis = isset($_POST['jenis']) ? $_POST['jenis'] : '';
     $deskripsi = isset($_POST['deskripsi']) ? $_POST['deskripsi'] : '';
@@ -50,8 +51,8 @@ if(isset($_POST['kirim'])){
     // Jika tidak ada error, proses insert
     if(!isset($error)) {
         // Gunakan prepared statement
-        $stmt = $conn->prepare("INSERT INTO laporan (lokasi, deskripsi, status, tanggal_laporan, jenis, gambar) VALUES (?, ?, 'pending', NOW(), ?, ?)");
-        $stmt->bind_param("ssss", $lokasi, $deskripsi, $jenis, $foto);
+        $stmt = $conn->prepare("INSERT INTO laporan (id_user, lokasi, deskripsi, status, tanggal_laporan, jenis, gambar) VALUES (?,?, ?, 'pending', NOW(), ?, ?)");
+        $stmt->bind_param("issss", $user,$lokasi, $deskripsi, $jenis, $foto);
 
         // Eksekusi query
         if($stmt->execute()) {
@@ -77,7 +78,6 @@ $result2 = $stmt2->get_result();
 
 $i = 1;
 $a = 1;
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -90,7 +90,6 @@ $a = 1;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-<?php  requireLogin(); ?>
     <div class="container my-4">
         <?php 
         // Tampilkan pesan error atau success
@@ -101,7 +100,7 @@ $a = 1;
             echo "<div class='alert alert-success'>$success</div>";
         }
         ?>
-        
+        <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
         <!-- Form Pelaporan -->
         <section class="mb-5">
             <h2 class="mb-4">Form Pelaporan Sampah</h2>
@@ -134,7 +133,7 @@ $a = 1;
                 </div>
             </div>
         </section>
-
+        <?php endif; ?>
         <!-- Status Laporan -->
         <section class="mb-5">
             <h2 class="mb-4">Status Laporan</h2>

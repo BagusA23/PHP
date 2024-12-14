@@ -19,15 +19,15 @@ if ($conn->connect_error) {
 
 function totaluser(){
     global $conn;
-    $sql = "SELECT COUNT(*) AS total_users FROM users";
+    $sql = "SELECT COUNT(*) AS total_users FROM users WHERE role = 'user'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $total_users = $row["total_users"];
-    echo  $total_users;
-    }else {
-    echo "No users found.";
+        $row = $result->fetch_assoc();
+        $total_users = $row["total_users"];
+        return $total_users;
+    } else {
+        return 0;
     }
 }
 
@@ -48,7 +48,9 @@ function totaluser(){
 
 function totalsampah(){
     global $conn;
-    $sql = "SELECT SUM(berat) AS total_sampah FROM setor_sampah";
+    $sql = "SELECT SUM(berat) AS total_sampah 
+                FROM setor_sampah 
+                WHERE status = 'selesai'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
@@ -66,7 +68,7 @@ function totalsaldo(){
     $user_id = $_SESSION['user_id'];
 
     // Query untuk menjumlahkan total harga hanya untuk user yang login
-    $sql = "SELECT SUM(total_harga) AS total_harga FROM setor_sampah WHERE id_user = ?";
+    $sql = "SELECT SUM(total_harga) AS total_harga FROM setor_sampah WHERE id_user = ? AND status = 'selesai'";
     
     // Gunakan prepared statement untuk keamanan
     $stmt = $conn->prepare($sql);
@@ -97,7 +99,7 @@ function totalsampahuser(){
     $user_id = $_SESSION['user_id'];
 
     // Query untuk menjumlahkan total harga hanya untuk user yang login
-    $sql = "SELECT SUM(berat) AS total_sampah FROM setor_sampah WHERE id_user = ?";
+    $sql = "SELECT SUM(berat) AS total_sampah FROM setor_sampah WHERE id_user = ? AND status = 'selesai'";
     
     // Gunakan prepared statement untuk keamanan
     $stmt = $conn->prepare($sql);
@@ -499,3 +501,49 @@ function uploadFotoProfil($user_id, $foto) {
     }
 }
 
+// Function to update trash category
+function updateTrashCategory($data) {
+    global $conn; // Gunakan koneksi global
+    $id = $_POST['id_kategori'] ?? 0;
+    $jenis = $_POST['jenis'] ?? '';
+    $harga_per_kg = $_POST['harga_per_kg'] ?? 0;
+
+    // Validate input
+    if (empty($id) || empty($jenis) || $harga_per_kg <= 0) {
+        $_SESSION['error'] = "Invalid input. Please fill all fields correctly.";
+        header('Location: Harga.php');
+        exit;
+    }
+
+    // Prepare and execute SQL
+    $stmt = $conn->prepare("UPDATE kategori_sampah SET jenis = ?, harga_per_kg = ? WHERE id_kategori = ?");
+    $stmt->bind_param("sdi", $jenis, $harga_per_kg, $id);
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Kategori sampah berhasil diperbarui!";
+    } else {
+        $_SESSION['error'] = "Gagal memperbarui kategori sampah: " . $stmt->error;
+    }
+
+    $stmt->close();
+    header('Location: Harga.php');
+    exit;
+}
+
+// Assuming you have a database connection established
+function getStatusOptions($conn, $currentStatus = null) {
+    
+    $statuses = ['pending', 'progress', 'resolved'];
+    
+    $statusOptions = '';
+    foreach ($statuses as $status) {
+        $active = ($status == $currentStatus) ? 'active' : '';
+        $statusOptions .= "<li>
+            <button class='dropdown-item {$active}' type='button' data-status='{$status}'>
+                " . ucfirst($status) . "
+            </button>
+        </li>";
+    }
+    
+    return $statusOptions;
+}

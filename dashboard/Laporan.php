@@ -13,6 +13,13 @@ if (!isset($_SESSION['sign'])) {
 }
 
 requireAdmin();
+$stmt = $conn->prepare("SELECT laporan.*, users.email
+                                FROM laporan
+                                INNER JOIN users ON laporan.id_user = users.id_user");
+$stmt->execute();
+$result = $stmt->get_result();
+
+$i = 1;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -164,3 +171,66 @@ requireAdmin();
                         </div>
                     </div>
                 </div>
+                
+                <!-- Latest Reports -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Laporan Terbaru</h5>
+                        <button class="btn btn-sm btn-primary">
+                            Lihat Semua
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>Pelapor</th>
+                                        <th>Lokasi</th>
+                                        <th>Jenis</th>
+                                        <th>Gambar</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while($row = $result->fetch_assoc()): ?>
+                                    <img src="" height="50px" alt="">
+                                    <tr>
+                                        <td><?= $i++ ?></td>
+                                        <td><?= $row['tanggal_laporan']; ?>></td>
+                                        <td><?= $row['email']; ?></td>
+                                        <td><?= $row['lokasi']; ?></td>
+                                        <td><?= $row['jenis']; ?></td>
+                                        <td><?='<img src="../pages/uploads/' . $row['gambar'] .' "height="50px" alt="Gambar Laporan">'; ?></td>
+                                        <?php if($row['status'] == 'pending'): ?>
+                                        <td>
+                                            <span class="badge bg-danger">pending</span>
+                                        </td>
+                                        <?php elseif($row['status'] == 'in_progress'): ?>
+                                        <td>
+                                            <span class="badge bg-warning">in_progress</span>
+                                        </td>
+                                        <?php elseif($row['status'] == 'resolved'): ?>
+                                        <td>
+                                            <span class="badge bg-success">resolved</span>
+                                        </td>
+                                        <?php endif; ?>
+                                        <td>
+                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+

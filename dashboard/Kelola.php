@@ -13,10 +13,21 @@ if (!isset($_SESSION['sign'])) {
 }
 
 requireAdmin();
+// Konfigurasi Pagination
+$batas_data = 10; // Jumlah data per halaman
+$halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$posisi = ($halaman - 1) * $batas_data;
 
-    $stmt = $conn->prepare("SELECT * FROM users");
-    $stmt->execute();
-    $result = $stmt->get_result();
+// Hitung total data
+$query_total = "SELECT COUNT(*) AS total FROM setor_sampah";
+$total_result = $conn->query($query_total);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_halaman = ceil($total_data / $batas_data);
+
+$stmt = $conn->prepare("SELECT * FROM users LIMIT ? , ?");
+$stmt->bind_param("ii", $posisi, $batas_data);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $i =1 ;
 ?>
@@ -219,6 +230,29 @@ $i =1 ;
                         </div>
                     </div>
                 </div>
+    <div class="pagination d-flex justify-content-center mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php 
+                // Tombol Previous
+                if($halaman > 1){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman-1)."'>Previous</a></li>";
+                }
+
+                // Nomor halaman
+                for($x = 1; $x <= $total_halaman; $x++){
+                    $active = ($x == $halaman) ? 'active' : '';
+                    echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                }
+
+                // Tombol Next
+                if($halaman < $total_halaman){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman+1)."'>Next</a></li>";
+                }
+                ?>
+            </ul>
+        </nav>
+    </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

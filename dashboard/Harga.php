@@ -12,7 +12,40 @@ if (!isset($_SESSION['sign'])) {
     exit;
 }
 
+if(isset($_POST['simpan'])){
+    global $conn; // Gunakan koneksi global
+    $id = $_POST['id_kategori'] ?? 0;
+    $jenis = $_POST['jenis'] ?? '';
+    $harga_per_kg = $_POST['harga_per_kg'] ?? 0;
+
+    // Validate input
+    if (empty($id) || empty($jenis) || $harga_per_kg <= 0) {
+        $_SESSION['error'] = "Gagal Mengupdate data";
+        header('Location: Harga.php');
+        exit;
+    }
+
+    // Prepare and execute SQL
+    $stmt = $conn->prepare("UPDATE kategori_sampah SET jenis = ?, harga_per_kg = ? WHERE id_kategori = ?");
+    $stmt->bind_param("sdi", $jenis, $harga_per_kg, $id);
+
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Harga Berhasil Diperbarui!";
+    } else {
+        $_SESSION['error'] = "Gagal memperbarui kategori sampah: " . $stmt->error;
+    }
+
+    $stmt->close();
+    header('Location: Harga.php');
+    exit;
+}
+
 requireAdmin();
+
+$stmt = $conn->prepare("SELECT * FROM kategori_sampah");
+$stmt->execute();
+$result = $stmt->get_result();
+$i = 1;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -164,3 +197,141 @@ requireAdmin();
                         </div>
                     </div>
                 </div>
+                <?php if(isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['success'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['error'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+
+                <!-- Latest Reports -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between ">
+                        <h5 class="mb-0">Harga Sampah</h5>
+                    </div>
+                    <div class="card-body ">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Jenis sampah</th>
+                                        <th>Harga Per Kg</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while($row = $result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= $i++; ?></td>
+                                        <td><?= $row['jenis']; ?></td>
+                                        <td><?= "Rp ". number_format($row['harga_per_kg'], 0, ',', '.') ?></td>                                        <td>
+                                        <button class="btn btn-sm btn-primary me-1 edit-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editModal"
+                                                data-id="<?= $row['id_kategori'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-harga="<?= $row['harga_per_kg'] ?>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>                                       
+                                            <!-- <button class="btn btn-sm btn-danger delete-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal"
+                                                data-id="<?= $row['id_kategori'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>">
+                                                <i class="bi bi-trash"></i>
+                                            </button> -->
+                                        </td>
+                                    </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Edit Kategori Sampah</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" id="edit-id_kategori" name="id_kategori">
+                        <div class="mb-3">
+                            <label for="edit-jenis" class="form-label">Jenis Sampah</label>
+                            <input type="text" class="form-control" id="edit-jenis" name="jenis" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Harga per Kg</label>
+                            <input type="number" class="form-control" id="edit-harga" name="harga_per_kg" required min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" name="simpan" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Konfirmasi Hapus</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" id="delete-id" name="id">
+                        <p>Apakah Anda yakin ingin menghapus kategori sampah: <strong id="delete-jenis"></strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Edit modal population script
+        document.addEventListener('DOMContentLoaded', function() {
+            const editBtns = document.querySelectorAll('.edit-btn');
+            const deleteBtns = document.querySelectorAll('.delete-btn');
+
+            editBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('edit-id_kategori').value = this.dataset.id;
+                    document.getElementById('edit-jenis').value = this.dataset.jenis;
+                    document.getElementById('edit-harga').value = this.dataset.harga;
+                });
+            });
+
+            deleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('delete-id').value = this.dataset.id;
+                    document.getElementById('delete-jenis').textContent = this.dataset.jenis;
+                });
+            });
+        });
+    </script>

@@ -13,6 +13,56 @@ if (!isset($_SESSION['sign'])) {
 }
 
 requireAdmin();
+
+// Konfigurasi Pagination
+$batas_data = 10; // Jumlah data per halaman
+$halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$posisi = ($halaman - 1) * $batas_data;
+
+// Hitung total data
+$query_total = "SELECT COUNT(*) AS total FROM setor_sampah";
+$total_result = $conn->query($query_total);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_halaman = ceil($total_data / $batas_data);
+
+// Query dengan pagination
+$stmt = $conn->prepare("SELECT setor_sampah.*, users.email, kategori_sampah.jenis
+                        FROM setor_sampah 
+                        INNER JOIN users ON setor_sampah.id_user = users.id_user
+                        INNER JOIN kategori_sampah ON setor_sampah.id_kategori = kategori_sampah.jenis
+                        LIMIT ?, ?");
+$stmt->bind_param("ii", $posisi, $batas_data);
+$stmt->execute();
+$result = $stmt->get_result();
+
+//set status harus sama dengan di databases
+$statuses = ['pending', 'proses', 'selesai'];
+
+if (isset($_POST['simpan'])) {
+    global $conn;
+    $id = $_POST['id_setor']; //mengambil id_setor
+    $status = $_POST['status']; //mengambil status
+
+    // Validasi apakah status termasuk dalam array yang diperbolehkan
+    if (in_array($status, $statuses)) {
+        // Query untuk update status
+        $stmt = $conn->prepare("UPDATE setor_sampah SET status = ? WHERE id_setor = ?");
+        $stmt->bind_param("si", $status, $id);
+
+        if ($stmt->execute()) {
+            // Jika berhasil
+            $_SESSION['success'] = "Status berhasil diperbarui.";
+        } else {
+            // Jika gagal
+            $_SESSION['error']  = "Gagal memperbarui status: " . $conn->error;
+        }
+    } else {
+        echo "Status tidak valid.";
+    }
+}
+
+
+$i = $posisi + 1;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -164,3 +214,235 @@ requireAdmin();
                         </div>
                     </div>
                 </div>
+                <!-- flasher atau pesan singkat -->
+                <?php if(isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['success'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['error'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+            <!-- Recent Transactions -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Bank-sampah</h5>
+                        <button class="btn btn-sm btn-primary">
+                            Lihat Semua
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>Pengguna</th>
+                                        <th>Jenis Sampah</th>
+                                        <th>Berat</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while($row = $result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= $i++; ?></td>
+                                        <?php $idSetor = $row['id_setor']; ?>
+                                        <td><?= $row['tanggal_setoran']; ?></td>
+                                        <td><?= $row['email']; ?></td>
+                                        <td><?= $row['jenis']; ?></td>
+                                        <td><?= $row['berat']; ?></td>
+                                        <td><?= $row['total_harga']; ?></td>
+                                        <?php if($row['status'] == 'pending'): ?>
+                                        <td>
+                                            <span class="badge bg-danger">pending</span>
+                                        </td>
+                                        <?php elseif($row['status'] == 'proses'): ?>
+                                        <td>
+                                            <span class="badge bg-warning">proses</span>
+                                        </td>
+                                        <?php elseif($row['status'] == 'selesai'): ?>
+                                        <td>
+                                            <span class="badge bg-success">selesai</span>
+                                        </td>
+                                        <?php endif; ?>
+                                        <td>
+                                            <button class="btn btn-sm btn-info me-1 edit-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#lihatModal"
+                                                data-id="<?= $row['id_setor'] ?>"
+                                                data-email="<?= $row['email'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-berat="<?= $row['berat'] ?>"
+                                                data-total="<?= $row['total_harga'] ?>">
+                                                <i class="bi bi-eye"></i>
+                                            </button> 
+                                            <button class="btn btn-sm btn-primary me-1 edit-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editModal"
+                                                data-id="<?= $row['id_setor'] ?>"
+                                                data-email="<?= $row['email'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-berat="<?= $row['berat'] ?>"
+                                                data-total="<?= $row['total_harga'] ?>"
+                                                data-status="<?= $row['status'] ?>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>  
+                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+    <div class="pagination d-flex justify-content-center mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php 
+                // Tombol Previous
+                if($halaman > 1){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman-1)."'>Previous</a></li>";
+                }
+
+                // Nomor halaman
+                for($x = 1; $x <= $total_halaman; $x++){
+                    $active = ($x == $halaman) ? 'active' : '';
+                    echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                }
+
+                // Tombol Next
+                if($halaman < $total_halaman){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman+1)."'>Next</a></li>";
+                }
+                ?>
+            </ul>
+        </nav>
+    </div>
+    <!-- Edit Modal -->
+    <div class="modal fade" id="lihatModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Detail Bank-sampah</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" id="lihat-bank" name="lihat">
+                        <div class="mb-3">
+                            <label for="edit-jenis" class="form-label">Pengguna</label>
+                            <input type="text" class="form-control" id="lihat-email" name="email1" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Jenis Sampah</label>
+                            <input type="text" class="form-control" id="lihat-jenis" name="jenis1" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Berat</label>
+                            <input type="text" class="form-control" id="lihat-berat" name="berat1" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Total Harga</label>
+                            <input type="number" class="form-control" id="lihat-harga" name="harga1" readonly>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="editModalLabel">Edit Bank-sampah</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                <form action="" method="post" >
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" id="edit-bank" name="edit">
+                        <div class="mb-3">
+                            <input type="hidden" id="edit-id" name="id_setor" value="<?= $row['id_setor']; ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-jenis" class="form-label">Pengguna</label>
+                            <input type="text" class="form-control" id="edit-email" name="email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Jenis Sampah</label>
+                            <input type="text" class="form-control" id="edit-jenis" name="jenis" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Berat</label>
+                            <input type="text" class="form-control" id="edit-berat" name="berat" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">Total Harga</label>
+                            <input type="number" class="form-control" id="edit-harga" name="harga" readonly>
+                        </div>
+
+                        <select name="status" class="form-select" id="status" aria-label="Default select example">
+                            <option value="pending"><?= $statuses[0]; ?></option>
+                            <option value="proses"><?= $statuses[1]; ?></option>
+                            <option value="selesai"><?= $statuses[2]; ?></option>
+                        </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" name="simpan" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Edit modal population script
+        document.addEventListener('DOMContentLoaded', function() {
+            const editBtns = document.querySelectorAll('.edit-btn');
+            const deleteBtns = document.querySelectorAll('.delete-btn');
+
+            editBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('lihat-bank').value = this.dataset.id;
+                    document.getElementById('lihat-email').value = this.dataset.email;
+                    document.getElementById('lihat-jenis').value = this.dataset.jenis;
+                    document.getElementById('lihat-berat').value = this.dataset.berat;
+                    document.getElementById('lihat-harga').value = this.dataset.total;
+                });
+            });
+            editBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('edit-bank').value = this.dataset.id;
+                    document.getElementById('edit-email').value = this.dataset.email;
+                    document.getElementById('edit-jenis').value = this.dataset.jenis;
+                    document.getElementById('edit-berat').value = this.dataset.berat;
+                    document.getElementById('edit-harga').value = this.dataset.total;
+                    document.getElementById('status').value =this.dataset.status;
+                    document.getElementById('edit-id').value = this.dataset.id;
+                });
+            });
+
+
+            deleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('delete-id').value = this.dataset.id;
+                    document.getElementById('delete-jenis').textContent = this.dataset.jenis;
+                });
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
