@@ -197,7 +197,6 @@ $i = 1;
                                 </thead>
                                 <tbody>
                                 <?php while($row = $result->fetch_assoc()): ?>
-                                    <img src="" height="50px" alt="">
                                     <tr>
                                         <td><?= $i++ ?></td>
                                         <td><?= $row['tanggal_laporan']; ?>></td>
@@ -219,7 +218,16 @@ $i = 1;
                                         </td>
                                         <?php endif; ?>
                                         <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-sm btn-info me-1 lihat-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#lihatModal"
+                                                data-id="<?= $row['id_laporan'] ?>"
+                                                data-email="<?= $row['email'] ?>"
+                                                data-lokasi="<?= $row['lokasi'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-gambar="<?='../pages/uploads/' . $row['gambar']; ?>">
+                                                <i class="bi bi-eye"></i>
+                                            </button> 
                                             <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
                                             <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
                                         </td>
@@ -233,4 +241,55 @@ $i = 1;
             </div>
         </div>
     </div>
+    <!-- lihat Modal -->
+    <div class="modal fade" id="lihatModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Detail Laporan</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="readonly">
+                        <input type="hidden" id="lihat-laporan" name="lihat">
+                        <div class="mb-3">
+                            <label for="edit-jenis" class="form-label">Pelapor</label>
+                            <input type="text" class="form-control" id="lihat-email" name="email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">lokasi</label>
+                            <input type="text" class="form-control" id="lihat-lokasi" name="lokasi" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">jenis</label>
+                            <input type="text" class="form-control" id="lihat-jenis" name="jenis" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-harga" class="form-label">gambar</label>
+                            <input type="image" class="form-control" id="lihat-gambar" name="gambar" readonly>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        //edit modal
+        document.addEventListener('DOMContentLoaded',function(){
+            const lihatbtns = document.querySelectorAll('.lihat-btn');
+            const editbtns = document.querySelectorAll('.editModal');
+            const deletebtns = document.querySelectorAll('.deleteModal');
 
+            lihatbtns.forEach(btn => {
+                btn.addEventListener('click',function(){
+                    document.getElementById('lihat-laporan').value = this.dataset.id;
+                    document.getElementById('lihat-email').value = this.dataset.email;
+                    document.getElementById('lihat-lokasi').value = this.dataset.lokasi;
+                    document.getElementById('lihat-jenis').value = this.dataset.jenis;
+                    document.getElementById('lihat-gambar').src = this.dataset.gambar
+            });
+        });
+    });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

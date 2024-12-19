@@ -61,6 +61,20 @@ if (isset($_POST['simpan'])) {
     }
 }
 
+if(isset($_POST['hapus'])){
+    global $conn;
+    $id = $_POST['id_setor']; //mengambil id_setor
+
+    $stmt = $conn->prepare("DELETE FROM setor_sampah WHERE id_setor = ?");
+    $stmt->bind_param('i',$id);
+
+    if($stmt->execute()){
+        $_SESSION['success'] = "berhasil menghapus data";
+    }else{
+        $_SESSION['error'] = "gagal menghapus data". $conn->error;
+    }
+}
+
 
 $i = $posisi + 1;
 ?>
@@ -276,14 +290,14 @@ $i = $posisi + 1;
                                         </td>
                                         <?php endif; ?>
                                         <td>
-                                            <button class="btn btn-sm btn-info me-1 edit-btn" 
+                                            <button class="btn btn-sm btn-info me-1 lihat-btn" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#lihatModal"
-                                                data-id="<?= $row['id_setor'] ?>"
-                                                data-email="<?= $row['email'] ?>"
-                                                data-jenis="<?= $row['jenis'] ?>"
-                                                data-berat="<?= $row['berat'] ?>"
-                                                data-total="<?= $row['total_harga'] ?>">
+                                                data-id1="<?= $row['id_setor'] ?>"
+                                                data-email1="<?= $row['email'] ?>"
+                                                data-jenis1="<?= $row['jenis'] ?>"
+                                                data-berat1="<?= $row['berat'] ?>"
+                                                data-total1="<?= $row['total_harga'] ?>">
                                                 <i class="bi bi-eye"></i>
                                             </button> 
                                             <button class="btn btn-sm btn-primary me-1 edit-btn" 
@@ -297,8 +311,16 @@ $i = $posisi + 1;
                                                 data-status="<?= $row['status'] ?>">
                                                 <i class="bi bi-pencil"></i>
                                             </button>  
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
+                                            <button class="btn btn-sm btn-danger me-1 delete-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal"
+                                                data-id="<?= $row['id_setor'] ?>"
+                                                data-email="<?= $row['email'] ?>"
+                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-berat="<?= $row['berat'] ?>"
+                                                data-total="<?= $row['total_harga'] ?>">
+                                                <i class="bi bi-trash"></i>
+                                            </button>                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                                 </tbody>
@@ -329,7 +351,7 @@ $i = $posisi + 1;
             </ul>
         </nav>
     </div>
-    <!-- Edit Modal -->
+    <!-- lihat Modal -->
     <div class="modal fade" id="lihatModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -338,23 +360,23 @@ $i = $posisi + 1;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                     <div class="modal-body">
-                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="action" value="readonly">
                         <input type="hidden" id="lihat-bank" name="lihat">
                         <div class="mb-3">
                             <label for="edit-jenis" class="form-label">Pengguna</label>
-                            <input type="text" class="form-control" id="lihat-email" name="email1" readonly>
+                            <input type="text" class="form-control" id="lihat-email" name="email" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="edit-harga" class="form-label">Jenis Sampah</label>
-                            <input type="text" class="form-control" id="lihat-jenis" name="jenis1" readonly>
+                            <input type="text" class="form-control" id="lihat-jenis" name="jenis" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="edit-harga" class="form-label">Berat</label>
-                            <input type="text" class="form-control" id="lihat-berat" name="berat1" readonly>
+                            <input type="text" class="form-control" id="lihat-berat" name="berat" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="edit-harga" class="form-label">Total Harga</label>
-                            <input type="number" class="form-control" id="lihat-harga" name="harga1" readonly>
+                            <input type="number" class="form-control" id="lihat-harga" name="harga" readonly>
                         </div>
                     </div>
             </div>
@@ -408,19 +430,49 @@ $i = $posisi + 1;
             </div>
         </div>
     </div>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Konfirmasi Hapus</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="" method="post">
+                <!-- Hidden inputs -->
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" id="delete-bank" name="delete">
+                <input type="hidden" id="delete-id" name="id_setor" value="<?= $row['id_setor']; ?>">
+                <input type="hidden" id="delete-email" name="email">
+                <input type="hidden" id="delete-jenis" name="jenis">
+                <input type="hidden" id="delete-berat" name="berat">
+                <input type="hidden" id="delete-harga" name="harga">
+                
+                <div class="modal-body">
+                    <p class="text-center mb-0">Apakah Anda yakin ingin menghapus data ini?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+                    <button type="submit" name="hapus" class="btn btn-danger">Ya, Hapus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     <script>
         // Edit modal population script
         document.addEventListener('DOMContentLoaded', function() {
+            const lihatbtns = document.querySelectorAll('.lihat-btn');
             const editBtns = document.querySelectorAll('.edit-btn');
             const deleteBtns = document.querySelectorAll('.delete-btn');
 
-            editBtns.forEach(btn => {
+            lihatbtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.getElementById('lihat-bank').value = this.dataset.id;
-                    document.getElementById('lihat-email').value = this.dataset.email;
-                    document.getElementById('lihat-jenis').value = this.dataset.jenis;
-                    document.getElementById('lihat-berat').value = this.dataset.berat;
-                    document.getElementById('lihat-harga').value = this.dataset.total;
+                    document.getElementById('lihat-bank').value = this.dataset.id1;
+                    document.getElementById('lihat-email').value = this.dataset.email1;
+                    document.getElementById('lihat-jenis').value = this.dataset.jenis1;
+                    document.getElementById('lihat-berat').value = this.dataset.berat1;
+                    document.getElementById('lihat-harga').value = this.dataset.total1;
                 });
             });
             editBtns.forEach(btn => {
@@ -446,3 +498,6 @@ $i = $posisi + 1;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+</div>
+</body>
+</html>
