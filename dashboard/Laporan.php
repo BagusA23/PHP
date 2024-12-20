@@ -13,11 +13,74 @@ if (!isset($_SESSION['sign'])) {
 }
 
 requireAdmin();
+// Konfigurasi Pagination
+$batas_data = 10; // Jumlah data per halaman
+$halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$posisi = ($halaman - 1) * $batas_data;
+
+// Hitung total data
+$query_total = "SELECT COUNT(*) AS total FROM laporan";
+$total_result = $conn->query($query_total);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_halaman = ceil($total_data / $batas_data);
+
 $stmt = $conn->prepare("SELECT laporan.*, users.email
                                 FROM laporan
-                                INNER JOIN users ON laporan.id_user = users.id_user");
+                                INNER JOIN users ON laporan.id_user = users.id_user
+                                LIMIT ?, ?");
+$stmt->bind_param("ii", $posisi, $batas_data);
 $stmt->execute();
 $result = $stmt->get_result();
+
+
+$statusus = ['pending', 'in progress', 'resolved'];
+
+if(isset($_POST['simpan'])){
+    global $conn;
+    $id_laporan = $_POST['id_laporan'];
+    $status = $_POST['status'];
+    // var_dump($id_laporan);
+    // var_dump($status);
+    // die;
+
+    // Validasi apakah status termasuk dalam array yang diperbolehkan
+    if (in_array($status, $statusus)) {
+        // Query untuk update status
+        $stmt = $conn->prepare("UPDATE laporan SET status = ? WHERE id_laporan = ?");
+        $stmt->bind_param("si", $status, $id_laporan);  
+
+        if ($stmt->execute()) {
+            // Jika berhasil
+            $_SESSION['success'] = "Status berhasil diperbarui.";
+        } else {
+            // Jika gagal
+            $_SESSION['error']  = "Gagal memperbarui status: " . $conn->error;
+        }
+    } else {
+        echo "Status tidak valid.";
+    }
+}
+
+if(isset($_POST['hapus'])) {
+    global $conn;
+    $id_laporan = $_POST['id_laporan'];
+    // var_dump($id_laporan);
+    // die;
+    
+    $stmt = $conn->prepare("DELETE FROM laporan WHERE id_laporan = ?");
+    $stmt->bind_param('i', $id_laporan);
+
+    if($stmt->execute()) {
+        $_SESSION['success'] = "Data berhasil dihapus";
+        header("Location: ".$_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        $_SESSION['error'] = "Gagal menghapus data: " . $conn->error;
+        header("Location: ".$_SERVER['PHP_SELF']);
+        exit;
+    }
+}
+
 
 $i = 1;
 ?>
@@ -171,6 +234,21 @@ $i = 1;
                         </div>
                     </div>
                 </div>
+                 <!-- flasher atau pesan singkat -->
+                 <?php if(isset($_SESSION['success'])): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['success'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+                <?php if(isset($_SESSION['error'])): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?= $_SESSION['error'] ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
                 
                 <!-- Latest Reports -->
                 <div class="card">
@@ -199,7 +277,7 @@ $i = 1;
                                 <?php while($row = $result->fetch_assoc()): ?>
                                     <tr>
                                         <td><?= $i++ ?></td>
-                                        <td><?= $row['tanggal_laporan']; ?>></td>
+                                        <td><?= $row['tanggal_laporan']; ?></td>
                                         <td><?= $row['email']; ?></td>
                                         <td><?= $row['lokasi']; ?></td>
                                         <td><?= $row['jenis']; ?></td>
@@ -208,7 +286,7 @@ $i = 1;
                                         <td>
                                             <span class="badge bg-danger">pending</span>
                                         </td>
-                                        <?php elseif($row['status'] == 'in_progress'): ?>
+                                        <?php elseif($row['status'] == 'in progress'): ?>
                                         <td>
                                             <span class="badge bg-warning">in_progress</span>
                                         </td>
@@ -221,15 +299,32 @@ $i = 1;
                                         <button class="btn btn-sm btn-info me-1 lihat-btn" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#lihatModal"
-                                                data-id="<?= $row['id_laporan'] ?>"
-                                                data-email="<?= $row['email'] ?>"
-                                                data-lokasi="<?= $row['lokasi'] ?>"
-                                                data-jenis="<?= $row['jenis'] ?>"
+                                                data-id="<?= $row['id_laporan']; ?>"
+                                                data-email="<?= $row['email']; ?>"
+                                                data-lokasi="<?= $row['lokasi']; ?>"
+                                                data-jenis="<?= $row['jenis']; ?>"
                                                 data-gambar="<?='../pages/uploads/' . $row['gambar']; ?>">
                                                 <i class="bi bi-eye"></i>
                                             </button> 
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                            <button class="btn btn-sm btn-primary me-1 edit-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editModal"
+                                                data-id="<?= $row['id_laporan']; ?>"
+                                                data-email="<?= $row['email']; ?>"
+                                                data-lokasi="<?= $row['lokasi']; ?>"
+                                                data-jenis="<?= $row['jenis']; ?>"
+                                                data-status = "<?= $row['status']; ?>">
+                                                <i class="bi bi-pencil"></i>
+                                            </button> 
+                                            <button class="btn btn-sm btn-danger me-1 delete-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal"
+                                                data-id="<?= $row['id_laporan']; ?>"
+                                                data-email="<?= $row['email']; ?>"
+                                                data-lokasi="<?= $row['lokasi']; ?>"
+                                                data-jenis="<?= $row['jenis']; ?>">
+                                                    <i class="bi bi-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -238,9 +333,34 @@ $i = 1;
                         </div>
                     </div>
                 </div>
+                    <div class="pagination d-flex justify-content-center mt-3">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                <?php 
+                                // Tombol Previous
+                                if($halaman > 1){
+                                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman-1)."'>Previous</a></li>";
+                                }
+
+                                // Nomor halaman
+                                for($x = 1; $x <= $total_halaman; $x++){
+                                    $active = ($x == $halaman) ? 'active' : '';
+                                    echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                                }
+
+                                // Tombol Next
+                                if($halaman < $total_halaman){
+                                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman+1)."'>Next</a></li>";
+                                }
+                                ?>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    
     <!-- lihat Modal -->
     <div class="modal fade" id="lihatModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -272,12 +392,80 @@ $i = 1;
             </div>
         </div>
     </div>
+     <!-- edit Modal -->
+     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editModalLabel">Konfirmasi Status Laporan</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body">
+                            <input type="hidden" name="action" value="readonly">
+                            <input type="hidden" id="edit-laporan" name="edit">
+                        <div class="mb-3">
+                            <input type="hidden" id="edit-id" name="id_laporan" value="<?= $row['id_laporan']; ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">Pelapor</label>
+                            <input type="text" class="form-control" id="edit-email" name="email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-lokasi" class="form-label">lokasi</label>
+                            <input type="text" class="form-control" id="edit-lokasi" name="lokasi" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-jenis" class="form-label">jenis</label>
+                            <input type="text" class="form-control" id="edit-jenis" name="jenis" readonly>
+                        </div>
+                            <label for="status" class="form-label">status</label>
+                            <select name="status" class="form-select" id="status" aria-label="Default select example">
+                                <?php foreach($statusus as $status): ?>
+                                    <option value="<?= $status ?>"><?= $status ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" name="simpan" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Konfirmasi Hapus Laporan</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="" method="post">
+                <div class="modal-body">
+                        <input type="hidden" name="action" value="readonly">
+                        <input type="hidden" id="delete-laporan" name="id_laporan">
+                            <input type="hidden" class="form-control" id="delete-email" name="email" readonly>
+                            <input type="hidden" class="form-control" id="delete-lokasi" name="lokasi" readonly>
+                            <input type="hidden" class="form-control" id="delete-jenis" name="jenis" readonly>
+                     <p>Apakah Anda yakin ingin menghapus laporan ini?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" name="hapus" class="btn btn-danger">Hapus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     <script>
         //edit modal
         document.addEventListener('DOMContentLoaded',function(){
             const lihatbtns = document.querySelectorAll('.lihat-btn');
-            const editbtns = document.querySelectorAll('.editModal');
-            const deletebtns = document.querySelectorAll('.deleteModal');
+            const editbtns = document.querySelectorAll('.edit-btn');
+            const deletebtns = document.querySelectorAll('.delete-btn');
+            const tt  = document.querySelectorAll('.ttg');
 
             lihatbtns.forEach(btn => {
                 btn.addEventListener('click',function(){
@@ -286,9 +474,29 @@ $i = 1;
                     document.getElementById('lihat-lokasi').value = this.dataset.lokasi;
                     document.getElementById('lihat-jenis').value = this.dataset.jenis;
                     document.getElementById('lihat-gambar').src = this.dataset.gambar
+                });
+            });
+
+            editbtns.forEach(btn=>{
+                btn.addEventListener('click',function(){
+                    document.getElementById('edit-id').value = this.dataset.id;
+                    document.getElementById('edit-email').value = this.dataset.email;
+                    document.getElementById('edit-lokasi').value = this.dataset.lokasi;
+                    document.getElementById('edit-jenis').value = this.dataset.jenis;
+                    document.getElementById('edit-gambar').src =this.dataset.gambar;
+                    document.getElementById('status').value = this.dataset.status;
+                });
+            });
+
+            deletebtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('delete-laporan').value = this.dataset.id;
+                    document.getElementById('delete-email').value = this.dataset.email;
+                    document.getElementById('delete-lokasi').value =this.dataset.lokasi;
+                    document.getElementById('delete-jenis').value =this.dataset.jenis;
+                });
             });
         });
-    });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

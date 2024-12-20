@@ -36,7 +36,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 //set status harus sama dengan di databases
-$statuses = ['pending', 'proses', 'selesai'];
+$statusus = ['pending', 'proses', 'selesai'];
 
 if (isset($_POST['simpan'])) {
     global $conn;
@@ -44,7 +44,7 @@ if (isset($_POST['simpan'])) {
     $status = $_POST['status']; //mengambil status
 
     // Validasi apakah status termasuk dalam array yang diperbolehkan
-    if (in_array($status, $statuses)) {
+    if (in_array($status, $statusus)) {
         // Query untuk update status
         $stmt = $conn->prepare("UPDATE setor_sampah SET status = ? WHERE id_setor = ?");
         $stmt->bind_param("si", $status, $id);
@@ -320,7 +320,8 @@ $i = $posisi + 1;
                                                 data-berat="<?= $row['berat'] ?>"
                                                 data-total="<?= $row['total_harga'] ?>">
                                                 <i class="bi bi-trash"></i>
-                                            </button>                                        </td>
+                                            </button>                                        
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                                 </tbody>
@@ -409,16 +410,16 @@ $i = $posisi + 1;
                             <label for="edit-harga" class="form-label">Berat</label>
                             <input type="text" class="form-control" id="edit-berat" name="berat" readonly>
                         </div>
-                        <div class="mb-3">
-                            <label for="edit-harga" class="form-label">Total Harga</label>
-                            <input type="number" class="form-control" id="edit-harga" name="harga" readonly>
-                        </div>
+                            <div class="mb-3">
+                                <label for="edit-harga" class="form-label">Total Harga</label>
+                                <input type="number" class="form-control" id="edit-harga" name="harga" readonly>
+                            </div>
 
-                        <select name="status" class="form-select" id="status" aria-label="Default select example">
-                            <option value="pending"><?= $statuses[0]; ?></option>
-                            <option value="proses"><?= $statuses[1]; ?></option>
-                            <option value="selesai"><?= $statuses[2]; ?></option>
-                        </select>
+                            <select name="status" class="form-select" id="status" aria-label="Default select example">
+                                <?php foreach($statusus as $status): ?>
+                                    <option value="<?= $status ?>"><?= $status ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
