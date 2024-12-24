@@ -17,6 +17,9 @@ if ($conn->connect_error) {
 // Close connection when not in use
 // $koneksi->close();
 
+
+function reward(){}
+
 function totaluser(){
     global $conn;
     $sql = "SELECT COUNT(*) AS total_users FROM users WHERE role = 'user'";
@@ -68,11 +71,19 @@ function totalsaldo(){
     $user_id = $_SESSION['user_id'];
 
     // Query untuk menjumlahkan total harga hanya untuk user yang login
-    $sql = "SELECT SUM(total_harga) AS total_harga FROM setor_sampah WHERE id_user = ? AND status = 'selesai'";
+    $sql = "SELECT 
+                (SELECT COALESCE(SUM(total_harga), 0) 
+                FROM setor_sampah 
+                WHERE id_user = ? 
+                AND status = 'selesai') - 
+                (SELECT COALESCE(SUM(jumlah), 0) 
+                FROM pengeluaran 
+                WHERE id_user = ?) 
+            AS saldo_bersih";
     
     // Gunakan prepared statement untuk keamanan
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param("ii", $user_id,$user_id);
     $stmt->execute();
     
     $result = $stmt->get_result();
@@ -81,7 +92,7 @@ function totalsaldo(){
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         // Tambahkan pengecekan null dan konversi ke float
-        $total_sampah = $row["total_harga"] !== null ? floatval($row["total_harga"]) : 0;
+        $total_sampah = $row["saldo_bersih"] !== null ? floatval($row["saldo_bersih"]) : 0;
         
         // Format rupiah
         echo "Rp. " . number_format($total_sampah, 0, ',', '.');

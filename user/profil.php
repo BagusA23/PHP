@@ -13,6 +13,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['foto'])) {
     $user_id = $_SESSION['user_id'];
     uploadFotoProfil($user_id, $_FILES['foto']);
 }
+$id = $_SESSION['user_id'];
+
+$stmt = $conn->prepare("SELECT * FROM setor_sampah WHERE id_user = ?");
+$stmt->bind_param('i',$id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
 
 
 ?>

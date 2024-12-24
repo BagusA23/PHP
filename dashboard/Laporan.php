@@ -52,9 +52,11 @@ if(isset($_POST['simpan'])){
         if ($stmt->execute()) {
             // Jika berhasil
             $_SESSION['success'] = "Status berhasil diperbarui.";
+            header("Location: ".$_SERVER['PHP_SELF']);
         } else {
             // Jika gagal
             $_SESSION['error']  = "Gagal memperbarui status: " . $conn->error;
+            header("Location: ".$_SERVER['PHP_SELF']);
         }
     } else {
         echo "Status tidak valid.";

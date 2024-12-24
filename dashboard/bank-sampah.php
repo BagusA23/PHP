@@ -275,7 +275,7 @@ $i = $posisi + 1;
                                         <td><?= $row['email']; ?></td>
                                         <td><?= $row['jenis']; ?></td>
                                         <td><?= $row['berat']; ?></td>
-                                        <td><?= $row['total_harga']; ?></td>
+                                        <td><?= "Rp ". number_format($row['total_harga'], 0, ',', '.') ?></td>  
                                         <?php if($row['status'] == 'pending'): ?>
                                         <td>
                                             <span class="badge bg-danger">pending</span>

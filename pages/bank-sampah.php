@@ -235,6 +235,7 @@ $result = $stmt->get_result();
                             <th>Jenis Sampah</th>
                             <th>Berat (kg)</th>
                             <th>Total Harga</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -243,7 +244,20 @@ $result = $stmt->get_result();
                             <td><?= $row['tanggal_setoran']; ?></td>
                             <td><?= $row['jenis']; ?></td>
                             <td><?= $row['berat']; ?></td>
-                            <td>Rp. <?= $row['total_harga']; ?></td>
+                            <td><?= "Rp ". number_format($row['total_harga'], 0, ',', '.') ?></td>
+                            <?php if($row['status'] == 'pending'): ?>
+                                <td>
+                                    <span class="badge bg-danger">pending</span>
+                                </td>
+                            <?php elseif($row['status'] == 'proses'): ?>
+                                <td>
+                                    <span class="badge bg-warning">proses</span>
+                                </td>
+                            <?php elseif($row['status'] == 'selesai'): ?>
+                                <td>
+                                    <span class="badge bg-success">selesai</span>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endwhile; ?>
                     </tbody>

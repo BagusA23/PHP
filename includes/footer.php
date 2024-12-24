@@ -42,7 +42,9 @@
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/bank-sampah.php">Bank Sampah</a></li>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php">Edukasi</a></li>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/lapor.php">Lapor Sampah</a></li>
+                            <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/kontak.php">Kontak</a></li>
+                            <?php endif; ?>
                         </ul>
                     </div>
 

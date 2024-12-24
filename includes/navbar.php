@@ -75,7 +75,7 @@ include "config.php";
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/user/profil.php">Profil</a></li>
-                                <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/test.php">Reward</a></li>
+                                <li><a class="dropdown-item" href="<?php echo $GLOBALS['base_url']; ?>/user/reward.php">Reward</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="<?php echo $GLOBALS['base_url']; ?>/user/logout.php">Logout</a></li>
                             </ul>
