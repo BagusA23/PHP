@@ -59,13 +59,13 @@ if (!isset($_SESSION['sign'])) {
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="Harga.php">
                                 <i class="bi bi-cash-coin me-2"></i>
                                 Harga Sampah
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="Transaksi.php">
                                 <i class="bi bi-file-text-fill me-2"></i>
                                 Laporan Transaksi
                             </a>
@@ -92,8 +92,6 @@ if (!isset($_SESSION['sign'])) {
                                 Admin
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Profil</a></li>
-                                <li><a class="dropdown-item" href="#">Pengaturan</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="<?php echo $GLOBALS['base_url']; ?>/user/logout.php">Logout</a></li>
                             </ul>

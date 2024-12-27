@@ -163,6 +163,11 @@ $result = $stmt->get_result();
             </div>
         </div>
     </div>
+    <?php if(!isset($_SESSION['sign']) || $_SESSION['sign'] != 'admin'): ?>
+        <div class="alert alert-danger mt-4" role="alert">
+            Login untuk mengakses fitur tambahan!
+        </div>
+    <?php endif; ?>
 </section>
 <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
         <!-- Form Setor Sampah (Visible only when logged in) -->

@@ -50,16 +50,19 @@ if(isset($_POST['simpan'])){
         $stmt->bind_param("si", $status, $id_laporan);  
 
         if ($stmt->execute()) {
-            // Jika berhasil
             $_SESSION['success'] = "Status berhasil diperbarui.";
-            header("Location: ".$_SERVER['PHP_SELF']);
         } else {
-            // Jika gagal
-            $_SESSION['error']  = "Gagal memperbarui status: " . $conn->error;
-            header("Location: ".$_SERVER['PHP_SELF']);
+            $_SESSION['error'] = "Gagal memperbarui status: " . $conn->error;
         }
+        
+        // Redirect with URL parameters to maintain pagination
+        $current_page = isset($_GET['halaman']) ? $_GET['halaman'] : 1;
+        header("Location: " . $_SERVER['PHP_SELF'] . "?halaman=" . $current_page);
+        exit();
     } else {
-        echo "Status tidak valid.";
+        $_SESSION['error'] = "Status tidak valid.";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 }
 
@@ -72,15 +75,16 @@ if(isset($_POST['hapus'])) {
     $stmt = $conn->prepare("DELETE FROM laporan WHERE id_laporan = ?");
     $stmt->bind_param('i', $id_laporan);
 
-    if($stmt->execute()) {
-        $_SESSION['success'] = "Data berhasil dihapus";
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit;
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Berhasil Menghapus Data .";
     } else {
         $_SESSION['error'] = "Gagal menghapus data: " . $conn->error;
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit;
     }
+    
+    // Redirect with URL parameters to maintain pagination
+    $current_page = isset($_GET['halaman']) ? $_GET['halaman'] : 1;
+    header("Location: " . $_SERVER['PHP_SELF'] . "?halaman=" . $current_page);
+    exit();
 }
 
 
@@ -498,6 +502,13 @@ $i = 1;
                     document.getElementById('delete-jenis').value =this.dataset.jenis;
                 });
             });
+            setTimeout(function() {
+                    const flashMessages = document.querySelectorAll('.alert');
+                    flashMessages.forEach(function(message) {
+                        const alert = new bootstrap.Alert(message);
+                        alert.close();
+                    });
+                }, 5000);
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

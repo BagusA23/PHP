@@ -83,26 +83,28 @@ function totalsaldo(){
     
     // Gunakan prepared statement untuk keamanan
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ii", $user_id,$user_id);
+    $stmt->bind_param("ii", $user_id, $user_id);
     $stmt->execute();
     
     $result = $stmt->get_result();
-
     
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         // Tambahkan pengecekan null dan konversi ke float
         $total_sampah = $row["saldo_bersih"] !== null ? floatval($row["saldo_bersih"]) : 0;
-        
-        // Format rupiah
-        echo "Rp. " . number_format($total_sampah, 0, ',', '.');
-    } else {
-        echo "Rp. 0";
-    }
+        $stmt->close();
+        return $total_sampah; // Return nilai numerik
+    } 
     
     $stmt->close();
+    return 0; // Return 0 jika tidak ada data
 }
 
+// Function untuk menampilkan saldo dalam format rupiah
+function formatSaldo() {
+    $saldo = totalsaldo();
+    return "Rp. " . number_format($saldo, 0, ',', '.');
+}
 //menghitung total sampah berdasrkan login
 function totalsampahuser(){
     global $conn;

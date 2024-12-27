@@ -27,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 // Konfigurasi Pagination
 $batas_data = 10; // Jumlah data per halaman
 $halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$id = $_SESSION['user_id'];
 $posisi = ($halaman - 1) * $batas_data;
 
 // Hitung total data
@@ -38,8 +39,9 @@ $total_halaman = ceil($total_data / $batas_data);
 $stmt = $conn->prepare("SELECT pengeluaran.*, users.email
                                 FROM pengeluaran
                                 INNER JOIN users ON pengeluaran.id_user = users.id_user
+                                WHERE pengeluaran.id_user = ?
                                 LIMIT ?, ?");
-$stmt->bind_param("ii", $posisi, $batas_data);
+$stmt->bind_param("iii", $id,$posisi, $batas_data);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -54,7 +56,6 @@ $result = $stmt->get_result();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-    
     <div class="container py-5">
         <!-- Success Message -->
         <?php if (isset($_SESSION['message'])): ?>
@@ -68,8 +69,14 @@ $result = $stmt->get_result();
         <?php endif; ?>
 
         <h1 class="text-center mb-5">Pilih Reward Dana</h1>
-        
-        <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        Saldo anda saat ini adalah <strong><?= totalsaldo(); ?></strong>
+        </div>
+            <?php 
+            $saldo = totalsaldo();
+            if($saldo >= 10000): 
+            ?>        
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
             <!-- Dana 10.000 -->
             <div class="col">
                 <div class="card h-100 shadow-sm">
@@ -79,7 +86,7 @@ $result = $stmt->get_result();
                         <p class="card-text">Tukarkan 10.000 Saldo dengan saldo Dana 10.000</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-primary">10000 Poin</span>
-                            <button class="btn btn-primary" onclick="claimReward( 10000)">
+                            <button class="btn btn-primary" onclick="claimReward(10000)">
                                 <i class="bi bi-gift me-2"></i>Klaim
                             </button>
                         </div>
@@ -96,7 +103,7 @@ $result = $stmt->get_result();
                         <p class="card-text">Tukarkan 20.000 saldo dengan saldo Dana 20.000</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-primary">20000 Poin</span>
-                            <button class="btn btn-primary" onclick="claimReward( 20000)">
+                            <button class="btn btn-primary" onclick="claimReward(20000)">
                                 <i class="bi bi-gift me-2"></i>Klaim
                             </button>
                         </div>
@@ -121,7 +128,11 @@ $result = $stmt->get_result();
                 </div>
             </div>
         </div>
-
+        <?php else: ?>
+            <div class="alert alert-info" role="alert">
+                Saldo Anda kurang dari <?=formatSaldo(); ?> Kumpulkan lebih banyak saldo untuk menukarkan hadiah!
+            </div>
+        <?php endif; ?>
         <!-- Claim Modal -->
         <div class="modal fade" id="claimModal" tabindex="-1">
             <div class="modal-dialog">
@@ -170,32 +181,53 @@ $result = $stmt->get_result();
                             <th>Status</th>
                         </tr>
                     </thead>
+                    <?php while($row = $result->fetch_assoc()): ?>
                     <tbody>
-                        <?php while($row = $result->fetch_assoc()): ?>
                             <td><?= $row['tanggal']; ?></td>
                             <td><?= "Rp ". number_format($row['jumlah'], 0, ',', '.') ?></td>   
                             <td><?= $row['Nomor_dana']; ?></td>
-                            <td><?= $row['status']; ?></td>
                             <?php if($row['status'] == 'pending'): ?>
                                 <td>
-                                    <span class="badge bg-danger">pending</span>
+                                <span class="badge bg-danger">pending</span>
                                 </td>
                             <?php elseif($row['status'] == 'proses'): ?>
                                 <td>
                                     <span class="badge bg-warning">proses</span>
                                 </td>
-                                <?php elseif($row['status'] == 'selesai'): ?>
+                            <?php elseif($row['status'] == 'selesai'): ?>
                                 <td>
                                     <span class="badge bg-success">selesai</span>
                                 </td>
                             <?php endif; ?>
-                        <?php endwhile; ?>
                     </tbody>
+                    <?php endwhile; ?>
                 </table>
             </div>
         </div>
     </div>
+    <div class="pagination d-flex justify-content-center mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <?php 
+                // Tombol Previous
+                if($halaman > 1){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman-1)."'>Previous</a></li>";
+                }
 
+                // Nomor halaman
+                for($x = 1; $x <= $total_halaman; $x++){
+                    $active = ($x == $halaman) ? 'active' : '';
+                    echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                }
+
+                // Tombol Next
+                if($halaman < $total_halaman){
+                    echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman+1)."'>Next</a></li>";
+                }
+                ?>
+            </ul>
+        </nav>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const claimModal = new bootstrap.Modal(document.getElementById('claimModal'));

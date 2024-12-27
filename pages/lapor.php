@@ -100,6 +100,11 @@ $a = 1;
             echo "<div class='alert alert-success'>$success</div>";
         }
         ?>
+        <?php if(!isset($_SESSION['sign']) || $_SESSION['sign'] != 'admin'): ?>
+        <div class="alert alert-danger my-4" role="alert">
+            Login untuk mengakses fitur tambahan!
+        </div>
+        <?php endif; ?>
         <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
         <!-- Form Pelaporan -->
         <section class="mb-5">

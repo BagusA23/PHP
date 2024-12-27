@@ -50,14 +50,19 @@ if (isset($_POST['simpan'])) {
         $stmt->bind_param("si", $status, $id);
 
         if ($stmt->execute()) {
-            // Jika berhasil
             $_SESSION['success'] = "Status berhasil diperbarui.";
         } else {
-            // Jika gagal
-            $_SESSION['error']  = "Gagal memperbarui status: " . $conn->error;
+            $_SESSION['error'] = "Gagal memperbarui status: " . $conn->error;
         }
+        
+        // Redirect with URL parameters to maintain pagination
+        $current_page = isset($_GET['halaman']) ? $_GET['halaman'] : 1;
+        header("Location: " . $_SERVER['PHP_SELF'] . "?halaman=" . $current_page);
+        exit();
     } else {
-        echo "Status tidak valid.";
+        $_SESSION['error'] = "Status tidak valid.";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 }
 
@@ -68,11 +73,16 @@ if(isset($_POST['hapus'])){
     $stmt = $conn->prepare("DELETE FROM setor_sampah WHERE id_setor = ?");
     $stmt->bind_param('i',$id);
 
-    if($stmt->execute()){
-        $_SESSION['success'] = "berhasil menghapus data";
-    }else{
-        $_SESSION['error'] = "gagal menghapus data". $conn->error;
+    if ($stmt->execute()) {
+        $_SESSION['success'] = "Berhasil Menghapus Data .";
+    } else {
+        $_SESSION['error'] = "Gagal menghapus data: " . $conn->error;
     }
+    
+    // Redirect with URL parameters to maintain pagination
+    $current_page = isset($_GET['halaman']) ? $_GET['halaman'] : 1;
+    header("Location: " . $_SERVER['PHP_SELF'] . "?halaman=" . $current_page);
+    exit();
 }
 
 
@@ -431,35 +441,35 @@ $i = $posisi + 1;
             </div>
         </div>
     </div>
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="deleteModalLabel">Konfirmasi Hapus</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">Konfirmasi Hapus</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <!-- Hidden inputs -->
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" id="delete-bank" name="delete">
+                    <input type="hidden" id="delete-id" name="id_setor" value="<?= $row['id_setor']; ?>">
+                    <input type="hidden" id="delete-email" name="email">
+                    <input type="hidden" id="delete-jenis" name="jenis">
+                    <input type="hidden" id="delete-berat" name="berat">
+                    <input type="hidden" id="delete-harga" name="harga">
+                    
+                    <div class="modal-body">
+                        <p class="text-center mb-0">Apakah Anda yakin ingin menghapus data ini?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+                        <button type="submit" name="hapus" class="btn btn-danger">Ya, Hapus</button>
+                    </div>
+                </form>
             </div>
-            <form action="" method="post">
-                <!-- Hidden inputs -->
-                <input type="hidden" name="action" value="delete">
-                <input type="hidden" id="delete-bank" name="delete">
-                <input type="hidden" id="delete-id" name="id_setor" value="<?= $row['id_setor']; ?>">
-                <input type="hidden" id="delete-email" name="email">
-                <input type="hidden" id="delete-jenis" name="jenis">
-                <input type="hidden" id="delete-berat" name="berat">
-                <input type="hidden" id="delete-harga" name="harga">
-                
-                <div class="modal-body">
-                    <p class="text-center mb-0">Apakah Anda yakin ingin menghapus data ini?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
-                    <button type="submit" name="hapus" class="btn btn-danger">Ya, Hapus</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
     <script>
         // Edit modal population script
         document.addEventListener('DOMContentLoaded', function() {
@@ -495,6 +505,13 @@ $i = $posisi + 1;
                     document.getElementById('delete-jenis').textContent = this.dataset.jenis;
                 });
             });
+            setTimeout(function() {
+                    const flashMessages = document.querySelectorAll('.alert');
+                    flashMessages.forEach(function(message) {
+                        const alert = new bootstrap.Alert(message);
+                        alert.close();
+                    });
+                }, 5000);
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
