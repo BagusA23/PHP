@@ -109,8 +109,6 @@ $i =1 ;
                                 Admin
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Profil</a></li>
-                                <li><a class="dropdown-item" href="#">Pengaturan</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="<?php echo $GLOBALS['base_url']; ?>/user/logout.php">Logout</a></li>
                             </ul>
@@ -185,9 +183,6 @@ $i =1 ;
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Transaksi Terbaru</h5>
-                        <button class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </button>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">

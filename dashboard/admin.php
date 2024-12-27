@@ -11,7 +11,46 @@ if (!isset($_SESSION['sign'])) {
     header('Location: /php/user/login.php');
     exit;
 }
+// Konfigurasi Pagination
+$batas_data = 10; // Jumlah data per halaman
+$halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$posisi = ($halaman - 1) * $batas_data;
 
+// Hitung total data
+$query_total = "SELECT COUNT(*) AS total FROM setor_sampah";
+$total_result = $conn->query($query_total);
+$total_data = $total_result->fetch_assoc()['total'];
+$total_halaman = ceil($total_data / $batas_data);
+
+// Query dengan pagination
+$stmt = $conn->prepare("SELECT setor_sampah.*, users.email, kategori_sampah.jenis
+                        FROM setor_sampah 
+                        INNER JOIN users ON setor_sampah.id_user = users.id_user
+                        INNER JOIN kategori_sampah ON setor_sampah.id_kategori = kategori_sampah.jenis
+                        LIMIT ?, ?");
+$stmt->bind_param("ii", $posisi, $batas_data);
+$stmt->execute();
+$result = $stmt->get_result();
+$i = 1;
+
+// Konfigurasi Pagination
+$batas_data1 = 10; // Jumlah data per halaman
+$halaman1 = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+$posisi1 = ($halaman1 - 1) * $batas_data1;
+
+// Hitung total data
+$query_total1 = "SELECT COUNT(*) AS total FROM laporan";
+$total_result1 = $conn->query($query_total1);
+$total_data1 = $total_result1->fetch_assoc()['total'];
+$total_halaman1 = ceil($total_data1 / $batas_data1);
+
+$stmt1 = $conn->prepare("SELECT laporan.*, users.email
+                                FROM laporan
+                                INNER JOIN users ON laporan.id_user = users.id_user
+                                LIMIT ?, ?");
+$stmt1->bind_param("ii", $posisi1, $batas_data1);
+$stmt1->execute();
+$result1 = $stmt1->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -163,13 +202,82 @@ if (!isset($_SESSION['sign'])) {
                     </div>
                 </div>
 
-                <!-- Recent Transactions -->
+                <!-- Latest Reports -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Laporan Terbaru</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tanggal</th>
+                                        <th>Pelapor</th>
+                                        <th>Lokasi</th>
+                                        <th>Jenis</th>
+                                        <th>Gambar</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while($row1 = $result1->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= $i++ ?></td>
+                                        <td><?= $row1['tanggal_laporan']; ?></td>
+                                        <td><?= $row1['email']; ?></td>
+                                        <td><?= $row1['lokasi']; ?></td>
+                                        <td><?= $row1['jenis']; ?></td>
+                                        <td><?='<img src="../pages/uploads/' . $row1['gambar'] .' "height="50px" alt="Gambar Laporan">'; ?></td>
+                                        <?php if($row1['status'] == 'pending'): ?>
+                                        <td>
+                                            <span class="badge bg-danger">pending</span>
+                                        </td>
+                                        <?php elseif($row1['status'] == 'in progress'): ?>
+                                        <td>
+                                            <span class="badge bg-warning">in_progress</span>
+                                        </td>
+                                        <?php elseif($row1['status'] == 'resolved'): ?>
+                                        <td>
+                                            <span class="badge bg-success">resolved</span>
+                                        </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                            <div class="pagination d-flex justify-content-center mt-3">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        <?php 
+                                        // Tombol Previous
+                                        if($halaman1 > 1){
+                                            echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman1-1)."'>Previous</a></li>";
+                                        }
+
+                                        // Nomor halaman
+                                        for($x = 1; $x <= $total_halaman1; $x++){
+                                            $active = ($x == $halaman1) ? 'active' : '';
+                                            echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                                        }
+
+                                        // Tombol Next
+                                        if($halaman1 < $total_halaman1){
+                                            echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman1+1)."'>Next</a></li>";
+                                        }
+                                        ?>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- bank sampah-->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Transaksi Terbaru</h5>
-                        <button class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </button>
+                        <h5 class="mb-0">Bank-sampah</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -183,102 +291,62 @@ if (!isset($_SESSION['sign'])) {
                                         <th>Berat</th>
                                         <th>Total</th>
                                         <th>Status</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                <?php while($row = $result->fetch_assoc()): ?>
                                     <tr>
-                                        <td>#001</td>
-                                        <td>20/03/2024</td>
-                                        <td>John Doe</td>
-                                        <td>Plastik</td>
-                                        <td>5 kg</td>
-                                        <td>Rp 25.000</td>
-                                        <td><span class="badge bg-success">Selesai</span></td>
+                                        <td><?= $i++; ?></td>
+                                        <?php $idSetor = $row['id_setor']; ?>
+                                        <td><?= $row['tanggal_setoran']; ?></td>
+                                        <td><?= $row['email']; ?></td>
+                                        <td><?= $row['jenis']; ?></td>
+                                        <td><?= $row['berat']; ?></td>
+                                        <td><?= "Rp ". number_format($row['total_harga'], 0, ',', '.') ?></td>  
+                                        <?php if($row['status'] == 'pending'): ?>
                                         <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                            <span class="badge bg-danger">pending</span>
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#002</td>
-                                        <td>20/03/2024</td>
-                                        <td>Jane Doe</td>
-                                        <td>Kertas</td>
-                                        <td>3 kg</td>
-                                        <td>Rp 15.000</td>
-                                        <td><span class="badge bg-warning">Proses</span></td>
+                                        <?php elseif($row['status'] == 'proses'): ?>
                                         <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                            <span class="badge bg-warning">proses</span>
                                         </td>
+                                        <?php elseif($row['status'] == 'selesai'): ?>
+                                        <td>
+                                            <span class="badge bg-success">selesai</span>
+                                        </td>
+                                        <?php endif; ?>
                                     </tr>
+                                <?php endwhile; ?>
                                 </tbody>
                             </table>
+                            <div class="pagination d-flex justify-content-center mt-3">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination">
+                                        <?php 
+                                        // Tombol Previous
+                                        if($halaman > 1){
+                                            echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman-1)."'>Previous</a></li>";
+                                        }
+
+                                        // Nomor halaman
+                                        for($x = 1; $x <= $total_halaman; $x++){
+                                            $active = ($x == $halaman) ? 'active' : '';
+                                            echo "<li class='page-item $active'><a class='page-link' href='?halaman=$x'>$x</a></li>";
+                                        }
+
+                                        // Tombol Next
+                                        if($halaman < $total_halaman){
+                                            echo "<li class='page-item'><a class='page-link' href='?halaman=".($halaman+1)."'>Next</a></li>";
+                                        }
+                                        ?>
+                                    </ul>
+                                </nav>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Latest Reports -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Laporan Terbaru</h5>
-                        <button class="btn btn-sm btn-primary">
-                            Lihat Semua
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Tanggal</th>
-                                        <th>Pelapor</th>
-                                        <th>Lokasi</th>
-                                        <th>Jenis</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>#001</td>
-                                        <td>20/03/2024</td>
-                                        <td>John Doe</td>
-                                        <td>Jl. Contoh No. 123</td>
-                                        <td>Sampah Liar</td>
-                                        <td><span class="badge bg-danger">Pending</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>#002</td>
-                                        <td>20/03/2024</td>
-                                        <td>Jane Doe</td>
-                                        <td>Jl. Sample No. 456</td>
-                                        <td>Sampah B3</td>
-                                        <td><span class="badge bg-success">Selesai</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+                
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
