@@ -1,1 +1,1 @@
-website bank sampah sederhan tugas project UAS semester 3
+website bank sampah sederhana tugas project UAS semester 3
