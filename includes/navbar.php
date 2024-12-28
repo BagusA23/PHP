@@ -51,11 +51,11 @@ include "config.php";
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $GLOBALS['base_url']; ?>/pages/lapor.php">Lapor Sampah</a>
                     </li>
-                    <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
+                    <!-- <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo $GLOBALS['base_url']; ?>/pages/kontak.php">Kontak</a>
                     </li>
-                    <?php endif; ?>
+                    <?php endif; ?> -->
                 </ul>
     
                 <!-- Menu Login/Register -->

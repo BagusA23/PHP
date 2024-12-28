@@ -153,8 +153,8 @@ $i =1 ;
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h6 class="card-title mb-1">Pendapatan</h6>
-                                        <h2 class="mb-0">Rp 5.2M</h2>
+                                    <h6 class="card-title mb-1">Total Reward</h6>
+                                    <h2 class="mb-0"><?= reward(); ?></h2>
                                     </div>
                                     <div class="bg-white rounded-circle p-2">
                                         <i class="bi bi-cash-coin text-warning"></i>
@@ -191,10 +191,8 @@ $i =1 ;
                                     <tr>
                                         <th>ID</th>
                                         <th>Tanggal</th>
-                                        <th>Profil</th>
                                         <th>Pengguna</th>
                                         <th>Role</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -202,7 +200,6 @@ $i =1 ;
                                     <tr>
                                         <td><?= $i++ ?></td>
                                         <td><?= $row['tanggal_daftar']; ?></td>
-                                        <td><img src="" alt="Profil"></td>
                                         <td><?= $row['email']; ?></td>
                                         <?php if($row['role'] == 'admin'): ?>
                                         <td>
@@ -211,11 +208,6 @@ $i =1 ;
                                         <?php else: ?>
                                         <td>
                                             <span class="badge bg-success"><?= $row['role']; ?></span>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm btn-info me-1"><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-sm btn-primary me-1"><i class="bi bi-pencil"></i></button>
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
                                         </td>
                                         <?php  endif; ?>
                                     </tr>

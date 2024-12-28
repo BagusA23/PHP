@@ -42,9 +42,9 @@
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/bank-sampah.php">Bank Sampah</a></li>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/Education.php">Edukasi</a></li>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/lapor.php">Lapor Sampah</a></li>
-                            <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
+                            <!-- <?php if(isset($_SESSION['sign']) && $_SESSION['sign'] === true): ?>
                             <li><a href="<?php echo $GLOBALS['base_url']; ?>/pages/kontak.php">Kontak</a></li>
-                            <?php endif; ?>
+                            <?php endif; ?> -->
                         </ul>
                     </div>
 
@@ -98,8 +98,8 @@
                         &copy; <?php echo date('Y'); ?> Bank Sampah. Hak Cipta Dilindungi.
                     </p>
                     <div class="footer-links">
-                        <a href="privacy-policy.php">Kebijakan Privasi</a>
-                        <a href="terms-conditions.php">Syarat & Ketentuan</a>
+                        <a href="#">Kebijakan Privasi</a>
+                        <a href="#">Syarat & Ketentuan</a>
                     </div>
                 </div>
             </div>

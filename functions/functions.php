@@ -18,7 +18,23 @@ if ($conn->connect_error) {
 // $koneksi->close();
 
 
-function reward(){}
+function reward(){
+    global $conn;
+    $sql = "SELECT SUM(jumlah) as jumlah FROM pengeluaran WHERE status = 'selesai'";
+    $result = $conn->query($sql);
+
+    if($result->num_rows>0){
+        $row = $result->fetch_assoc();
+        $total = "Rp. " . number_format($row['jumlah'], 0, ',', '.');
+        return $total;
+    }else{
+        return 0;
+    }
+}
+function formatreward() {
+    $saldo = reward();
+    return "Rp. " . number_format($saldo, 0, ',', '.');
+}
 
 function totaluser(){
     global $conn;

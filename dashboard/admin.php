@@ -175,8 +175,8 @@ $result1 = $stmt1->get_result();
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <h6 class="card-title mb-1">Pendapatan</h6>
-                                        <h2 class="mb-0">Rp 5.2M</h2>
+                                    <h6 class="card-title mb-1">Total Reward</h6>
+                                    <h2 class="mb-0"><?= reward(); ?></h2>
                                     </div>
                                     <div class="bg-white rounded-circle p-2">
                                         <i class="bi bi-cash-coin text-warning"></i>
