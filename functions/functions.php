@@ -160,7 +160,6 @@ function totallapor(){
         echo "No data found.";
     }
 }
-
 function totallapor2(){
     global $conn;
     $query = "SELECT SUM(CASE WHEN status = 'pending' or status = 'in progress' THEN 1 ELSE 0 END) AS total_lapor FROM laporan";

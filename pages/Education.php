@@ -118,8 +118,7 @@ require "../includes/navbar.php";?>
         <!-- Panduan Pemilahan -->
         <div class="row mb-5 align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <iframe src="https://www.youtube.com/embed/4VOCL5JKlEg?si=PSgAtatjdjgc4p7O" class="img-fluid rounded shadow" frameborder="2"></iframe>
-            </div>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/tVuNnac7m0o?si=1RXxVfgepRi6Doky" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            </div>
             <div class="col-lg-6">
                 <h2 class="text-success mb-4">Langkah-langkah Pemilahan Sampah</h2>
                 <div class="accordion shadow" id="accordionPanduan">
@@ -261,22 +260,21 @@ require "../includes/navbar.php";?>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="card h-100 shadow">
-                <img src="/api/placeholder/800/400" class="card-img-top" alt="Kerajinan">
+                <img src="../assets/img/kerajinan.png" height="200px" class="card-img-top" alt="Kerajinan">
                 <div class="card-body">
                     <h5 class="card-title text-success">Kerajinan</h5>
                     <p class="card-text">Membuat kerajinan dari berbagai sampah anorganik.</p>
+                    <a href="https://youtu.be/RmbecqQY5bI?si=Gkrnx1ooPTuZLR04" class="btn btn-success">Lihat Tutorial</a>
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-lg-3">
             <div class="card h-100 shadow">
-                <img src="/api/placeholder/800/400" class="card-img-top" alt="Pengolahan Limbah">
+                <img src="../assets/img/block.jpg" height="200px" class="card-img-top" alt="Pengolahan Limbah">
                 <div class="card-body">
                     <h5 class="card-title text-success">Pengolahan Limbah</h5>
                     <p class="card-text">Mengolah limbah menjadi produk yang lebih berguna.</p>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#limbahModal">
-                        Lihat Tutorial
-                    </button>
+                    <a href="https://youtu.be/mGNpYEQM7Sw?si=ZZ9OufabVmhLy_8g" class="btn btn-success">Lihat Tutorial</a>
                 </div>
             </div>
         </div>

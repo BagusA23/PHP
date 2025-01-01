@@ -99,6 +99,11 @@ $stmt->bind_param("i", $_SESSION['user_id']); // Pastikan Anda sudah memiliki se
 $stmt->execute();
 $result = $stmt->get_result();
 
+$jenis = "SELECT * FROM kategori_sampah";
+$stmt_kategori = $conn->prepare($jenis);
+$stmt_kategori->execute();
+$result_kategori = $stmt_kategori->get_result();
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -209,22 +214,14 @@ $result = $stmt->get_result();
                         </tr>
                     </thead>
                     <tbody>
+                        <?php while($roww = $result_kategori->fetch_assoc()): ?>
                         <tr>
-                            <td>Organik</td>
-                            <td>Rp 10.000</td>
-                            <td>sisa sayur, kulit pisang, buah busuk, dan kulit bawang DLL</td>
-                        </tr>
-                        <tr>
-                            <td>Anorganik</td>
-                            <td>Rp 5.000</td>
-                            <td>Ban bekas, Aneka elektronik, Pembuangan pestisida, Kertas kaca DLL</td>
-                        </tr>
-                        <tr>
-                            <td>B3</td>
-                            <td>Rp 3.000</td>
-                            <td>Batu baterai bekas, Pestisida, Hairspray, Deterjen pakaian, Pembersih lantai DLL</td>
+                            <td><?=  $roww['jenis'] ?></td>
+                            <td><?= "Rp ". number_format($roww['harga_per_kg'], 0, ',', '.') ?></td>
+                            <td><?=  $roww['keterangan'] ?></td>
                         </tr>
                     </tbody>
+                    <?php endwhile; ?>
                 </table>
             </div>
         </section>
